@@ -5,9 +5,10 @@ import android.support.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 
-public class MovieSearch extends TmdbApiRequest {
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
-    private static final String SEARCH_BASE_URL = "/search";
+public class MovieSearchAPI extends TmdbApiRequest {
+    private static final String SEARCH_BASE_URL = "/search/movie";
     private static final String QUERY_PARAMETER = "&query=";
     private static final String PAGE_NUMBER_PARAMETER = "&page=";
 
@@ -16,15 +17,27 @@ public class MovieSearch extends TmdbApiRequest {
     private int nextPageNumber = 1;
     private int numberOfPages = 1;
 
-    public MovieSearchResults search(String query) {
+    /**
+     * Set the query of the search
+     * @param query
+     */
+    public MovieSearchAPI(String query) {
         this.query = query;
-        return search(1);
     }
 
+    /**
+     * Checks if there is another page of search
+     * @return true if there is another page to search, else false
+     */
     public boolean haveNext() {
         return (this.nextPageNumber <= this.numberOfPages);
     }
 
+    /**
+     * Search next page
+     * @return next results page
+     */
+    @Nullable
     public MovieSearchResults searchNext() {
         return search(this.nextPageNumber);
     }
@@ -39,7 +52,7 @@ public class MovieSearch extends TmdbApiRequest {
         Gson gson = new Gson();
         MovieSearchResults searchResults = gson.fromJson(response, MovieSearchResults.class);
 
-        if (!searchResults.equals(JsonNull.INSTANCE)) {
+        if (searchResults != null) {
             this.numberOfPages = searchResults.getTotalPages().intValue();
             this.nextPageNumber = searchResults.getPage().intValue() + 1;
             return searchResults;
@@ -47,5 +60,4 @@ public class MovieSearch extends TmdbApiRequest {
             return null;
         }
     }
-
 }

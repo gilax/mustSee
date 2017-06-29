@@ -14,15 +14,12 @@ import ac.huji.agapps.mustsee.BuildConfig;
 
 public class TmdbApiRequest {
 
-    protected static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/550";
+    protected static final String TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
-    protected static final String API_KEY_KEY = "api_key";
+    protected static final String API_KEY_KEY = "?api_key";
     protected static final String API_KEY_VALUE = BuildConfig.TMDB_API_KEY;
 
     private final String TAG = "TMDB API Request";
-
-    protected static final String POST = "POST";
-    protected static final String GET = "GET";
 
     protected String url;
 
@@ -34,6 +31,10 @@ public class TmdbApiRequest {
         return API_KEY_KEY + "=" + API_KEY_VALUE;
     }
 
+    /**
+     * Doing the HTTPS request. Call this method after setting the URL.
+     * @return the response of the HTTPS request
+     */
     protected String getResponseForHTTPGetRequest() {
         URL url = null;
         HttpsURLConnection connection = null;
@@ -51,9 +52,9 @@ public class TmdbApiRequest {
                 response += current;
             }
         } catch (MalformedURLException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Log.e(TAG, e.getMessage());
         } catch (IOException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Log.e(TAG, e.getMessage());
         }
         finally {
             if (connection != null)

@@ -1,5 +1,5 @@
 
-package ac.huji.agapps.mustsee.mustSeeApi;
+package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import java.util.List;
 import javax.annotation.Generated;
@@ -50,4 +50,13 @@ public class MovieSearchResults {
         mTotalResults = totalResults;
     }
 
+    @Override
+    public String toString() {
+        return "{\n" +
+                "  \"page\": " + getPage() + ",\n" +
+                "  \"total_results\": " + getTotalResults() + ",\n" +
+                "  \"total_pages\": " + getTotalPages() + ",\n" +
+                "  \"results\": " + getResults().toString() + "\n" +
+                "}";
+    }
 }

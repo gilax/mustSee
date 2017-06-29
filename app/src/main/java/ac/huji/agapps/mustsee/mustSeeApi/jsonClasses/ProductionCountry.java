@@ -1,5 +1,5 @@
 
-package ac.huji.agapps.mustsee.mustSeeApi;
+package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
@@ -29,4 +29,11 @@ public class ProductionCountry {
         mName = name;
     }
 
+    @Override
+    public String toString() {
+        return "{\n" +
+                "  \"iso_3166_1\": \"" + getIso31661() + "\",\n" +
+                "  \"name\": \"" + getName() + "\"\n" +
+                "}";
+    }
 }

@@ -1,15 +1,19 @@
 
-package ac.huji.agapps.mustsee.mustSeeApi;
+package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import javax.annotation.Generated;
+
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
 public class Genre {
 
+    @Expose
     @SerializedName("id")
     private Long mId;
+    @Expose
     @SerializedName("name")
     private String mName;
 
@@ -29,4 +33,11 @@ public class Genre {
         mName = name;
     }
 
+    @Override
+    public String toString() {
+        return " {\n" +
+                "  \"id\": " + getId() + ",\n" +
+                "  \"name\": \"" + getName() + "\"\n" +
+                "}";
+    }
 }

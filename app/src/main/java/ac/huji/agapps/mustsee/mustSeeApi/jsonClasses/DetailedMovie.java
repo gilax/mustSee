@@ -1,5 +1,5 @@
 
-package ac.huji.agapps.mustsee.mustSeeApi;
+package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import java.util.List;
 import javax.annotation.Generated;
@@ -260,4 +260,34 @@ public class DetailedMovie {
         mVoteCount = voteCount;
     }
 
+    @Override
+    public String toString() {
+        return "{\n" +
+                "  \"adult\": " + getAdult() + ",\n" +
+                "  \"backdrop_path\": \"" + getBackdropPath() + "\",\n" +
+                "  \"belongs_to_collection\": " + getBelongsToCollection() + ",\n" +
+                "  \"budget\": " + getBudget() + ",\n" +
+                "  \"genres\": " + getGenres() + ",\n" +
+                "  \"homepage\": \"" + getHomepage() + "\",\n" +
+                "  \"id\": " + getId() + ",\n" +
+                "  \"imdb_id\": \"" + getImdbId() + "\",\n" +
+                "  \"original_language\": \"" + getOriginalLanguage() + "\",\n" +
+                "  \"original_title\": \"" + getOriginalTitle() + "\",\n" +
+                "  \"overview\": \"" + getOverview() + "\",\n" +
+                "  \"popularity\": " + getPopularity() + ",\n" +
+                "  \"poster_path\": \"" + getPosterPath() + "\",\n" +
+                "  \"production_companies\": " + getProductionCompanies() + ",\n" +
+                "  \"production_countries\": " + getProductionCountries() + ",\n" +
+                "  \"release_date\": \"" + getReleaseDate() + "\",\n" +
+                "  \"revenue\": " + getRevenue() + ",\n" +
+                "  \"runtime\": " + getRuntime() + ",\n" +
+                "  \"spoken_languages\": " + getSpokenLanguages() + ",\n" +
+                "  \"status\": \"" + getStatus() + "\",\n" +
+                "  \"tagline\": \"" + getTagline() + "\",\n" +
+                "  \"title\": \"" + getTitle() + "\",\n" +
+                "  \"video\": " + getVideo() + ",\n" +
+                "  \"vote_average\": " + getVoteAverage() + ",\n" +
+                "  \"vote_count\": " + getVoteCount() + "\n" +
+                "}";
+    }
 }

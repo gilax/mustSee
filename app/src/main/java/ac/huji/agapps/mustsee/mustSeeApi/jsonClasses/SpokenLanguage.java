@@ -1,5 +1,5 @@
 
-package ac.huji.agapps.mustsee.mustSeeApi;
+package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
@@ -29,4 +29,11 @@ public class SpokenLanguage {
         mName = name;
     }
 
+    @Override
+    public String toString() {
+        return "{\n" +
+                "  \"iso_639_1\": \"" + getIso6391() + "\",\n" +
+                "  \"name\": \"" + getName() + "\"\n" +
+                "}";
+    }
 }

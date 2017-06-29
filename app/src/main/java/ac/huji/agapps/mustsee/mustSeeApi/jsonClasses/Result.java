@@ -1,5 +1,5 @@
 
-package ac.huji.agapps.mustsee.mustSeeApi;
+package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import java.util.List;
 import javax.annotation.Generated;
@@ -150,4 +150,23 @@ public class Result {
         mVoteCount = voteCount;
     }
 
+    @Override
+    public String toString() {
+        return "{\n" +
+                "  \"vote_count\": " + getVoteCount() + ",\n" +
+                "  \"id\": " + getId() + ",\n" +
+                "  \"video\": " + getVideo() + ",\n" +
+                "  \"vote_average\": " + getVoteAverage() + ",\n" +
+                "  \"title\": \"" + getTitle() + "\",\n" +
+                "  \"popularity\": " + getPopularity() + ",\n" +
+                "  \"poster_path\": \"" + getPosterPath() + "\",\n" +
+                "  \"original_language\": \"" + getOriginalLanguage() + "\",\n" +
+                "  \"original_title\": \"" + getOriginalTitle() + "\",\n" +
+                "  \"genre_ids\": " + getGenreIds().toString() + ",\n" +
+                "  \"backdrop_path\": \"" + getBackdropPath() + "\",\n" +
+                "  \"adult\": " + getAdult() + ",\n" +
+                "  \"overview\": \"" + getOverview() + "\",\n" +
+                "  \"release_date\": \"" + getReleaseDate() + "\"\n" +
+                "}";
+    }
 }
