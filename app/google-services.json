@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "544782179847",
+    "firebase_url": "https://mustsee-26aff.firebaseio.com",
+    "project_id": "mustsee-26aff",
+    "storage_bucket": "mustsee-26aff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:544782179847:android:9bdbe1b73f9d8703",
+        "android_client_info": {
+          "package_name": "ac.huji.agapps.mustsee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "544782179847-3d3reghae0h8eg8lcth07gddtdmmaip9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMoqo0igg79k4ITQbcmpTZjByE5JQODVg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
