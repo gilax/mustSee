@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-                Toast.makeText(MainActivity.this, "You got an Error", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
             }
         })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.makeText(MainActivity.this, R.string.auth_fail,
                                     Toast.LENGTH_SHORT).show();
 //                            updateUI(null);
                         }

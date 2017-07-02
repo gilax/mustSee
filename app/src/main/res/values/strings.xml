@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MustSee</string>
+    <string name="error_msg">You got an Error</string>
+    <string name="auth_fail">Authentication failed.</string>
 </resources>
