@@ -30,21 +30,14 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 public class MainActivity extends AppCompatActivity implements  View.OnClickListener{
 
-    private SignInButton mGoogleButton;
+    private SignInButton mGoogleButton; //google sign in button
     private static final int RC_SIGN_IN = 1;
-
     private GoogleApiClient mGoogleApiClient;
-
     private FirebaseAuth mAuth;
-
-//    private FirebaseAuth.AuthStateListener mAuthListener;
-
     private static final String TAG = "MAIN_ACTIVITY";
     private ProgressDialog progressDialog;
-
-    private Button mLogOutButton;
-
-    private TextView mStatusBar;
+    private Button mLogOutButton; // log out buton
+    private TextView mStatusBar; //status of who's online
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
 
         mLogOutButton = (Button) findViewById(R.id.logOut);
 
-//        mLogOutButton.setVisibility(View.VISIBLE);
-
         mLogOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,12 +57,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         });
 
         mAuth = FirebaseAuth.getInstance();
-//        mAuthListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-////                updateUI(null);
-//            }
-//        };
 
         mGoogleButton = (SignInButton) findViewById(R.id.google_button);
 
@@ -106,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     protected void onStart()
     {
         super.onStart();
-//        mAuth.addAuthStateListener(mAuthListener);
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
     }
@@ -197,20 +181,15 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     private void updateUI(FirebaseUser user) {
         progressDialog.dismiss();
         if (user != null) {
-
+            //user logged in, set log in button invisible
             mStatusBar.setText("user: " + user.getDisplayName());
-//            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
-
-//            mGoogleButton.setVisibility(View.VISIBLE);
             mGoogleButton.setVisibility(View.GONE);
             mLogOutButton.setVisibility(View.VISIBLE);
         } else {
-//            mStatusTextView.setText(R.string.signed_out);
-//            mDetailTextView.setText(null);
+            //user logged out, set log out button invisible
             mStatusBar.setText("user: Disconnected");
 
             mGoogleButton.setVisibility(View.VISIBLE);
-//            mLogOutButton.setVisibility(View.VISIBLE);
             mLogOutButton.setVisibility(View.GONE);
         }
     }
