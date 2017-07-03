@@ -73,9 +73,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
 
                         Toast.makeText(MainActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
                     }
-                })
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
-
+                }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
 
         mGoogleButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,9 +81,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                 signIn();
             }
         });
-
     }
-
 
     @Override
     protected void onStart()
