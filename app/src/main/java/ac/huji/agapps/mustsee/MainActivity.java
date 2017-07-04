@@ -1,13 +1,17 @@
 package ac.huji.agapps.mustsee;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +32,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import ac.huji.agapps.mustsee.mustSeeApi.MovieGenresAPI;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
+
 public class MainActivity extends AppCompatActivity implements  View.OnClickListener{
 
     private SignInButton mGoogleButton; //google sign in button
@@ -39,10 +51,25 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     private Button mLogOutButton; // log out buton
     private TextView mStatusBar; //status of who's online
 
+
+    //api genres:
+    private ListView listView;
+    private MovieGenresAPI genreAPI;
+    private Genres genres;
+    private MyCustomAdapter dataAdapter = null;
+    private String fav_genres;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        todo :need to take from DB instead from API
+//        todo: uncomment this, it didn't work for me for some reason so I manually put a list of genres later on
+//        genreAPI = new MovieGenresAPI();
+//        genres = genreAPI.getGenres();
+
         progressDialog = new ProgressDialog(this);
 
         mStatusBar = (TextView) findViewById(R.id.statusBar);
@@ -79,10 +106,59 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
             @Override
             public void onClick(View v) {
                 signIn();
+                //save genres in sharedprefences
+                saveGenres();
+//
             }
         });
+
+//      for testing purposes, reset sharedpreferences in comment below
+//        resetFavoriteGenres();
+        getFavGenres();
+        displayListView();
     }
 
+    /**
+     * used to reset sharedpreferences for debugging
+     */
+    private void resetFavoriteGenres() {
+        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.userGenres),
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sharedPref.edit();
+        edit.clear();
+
+        edit.apply();
+    }
+
+    /**
+     * tries to retrieve favorite genres in shared preferences
+     */
+    private void getFavGenres() {
+        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.userGenres),
+                Context.MODE_PRIVATE);
+        fav_genres = sharedPref.getString(String.valueOf(R.string.shared_pref_id), "");
+        if(fav_genres.length() != 0)
+            Toast.makeText(MainActivity.this, fav_genres, Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void saveGenres() {
+        HashMap<Long, Genre> checked = dataAdapter.getChecked();
+
+        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.userGenres),
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        String fav_genres_string = "";
+        for (Long id : checked.keySet()) {
+            fav_genres_string += id+"."+checked.get(id).getName() + ",";
+        }
+        //stores the fav genres with a syntax of <genre.id>.<genre.name>,
+        //for example: 123.horror,124.action, and so on.
+        editor.putString(String.valueOf(R.string.shared_pref_id), fav_genres_string);
+
+        editor.apply();
+    }
     @Override
     protected void onStart()
     {
@@ -107,22 +183,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                     }
                 });
         Toast.makeText(MainActivity.this, "logged out", Toast.LENGTH_SHORT).show();
-    }
-
-    private void revokeAccess() {
-        // Firebase sign out
-        mAuth.signOut();
-
-        // Google revoke access
-        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        updateUI(null);
-                    }
-                });
-
-        Toast.makeText(MainActivity.this, "disconnected", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -174,6 +234,11 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                     }
                 });
     }
+
+    /**
+     * update UI after logging in/disconnecting
+     * @param user, the user connected, null if disconnected
+     */
     private void updateUI(FirebaseUser user) {
         progressDialog.dismiss();
         if (user != null) {
@@ -181,12 +246,14 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
             mStatusBar.setText("user: " + user.getDisplayName());
             mGoogleButton.setVisibility(View.GONE);
             mLogOutButton.setVisibility(View.VISIBLE);
+            findViewById(R.id.genre_pick_layout).setVisibility(View.INVISIBLE);
         } else {
             //user logged out, set log out button invisible
             mStatusBar.setText("user: Disconnected");
 
             mGoogleButton.setVisibility(View.VISIBLE);
             mLogOutButton.setVisibility(View.GONE);
+
         }
     }
 
@@ -197,10 +264,51 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
             signIn();
         } else if (i == R.id.logOut) {
             signOut();
-        } else if (i == R.id.logOut) {
-            revokeAccess();
+            //possibly need a case of "disconnect" as seen by google example, not sure what's
+            //the difference as in both ifs they did the same thing
         }
     }
+
+    /**
+     * displays the listview of favorite genres
+     */
+    private void displayListView() {
+
+        //create an ArrayAdaptar from the String Array
+
+// todo: remove this later, was for testing (creating custom list of genres), also remove constructor in Genre
+        List<Genre> my_list = new ArrayList<>();
+        my_list.add(new Genre(123, "action"));
+        my_list.add(new Genre(124, "comedy"));
+        my_list.add(new Genre(125, "horror"));
+        my_list.add(new Genre(126, "animated"));
+        my_list.add(new Genre(127, "romance"));
+
+        dataAdapter = new MyCustomAdapter(this, R.layout.genre_check_box, my_list);
+        //todo: replace upper line with this (comment below)
+
+//        dataAdapter = new MyCustomAdapter(this, R.layout.genre_check_box, genres.getGenres());
+        listView = (ListView) findViewById(R.id.listView1);
+        // Assign adapter to ListView
+        listView.setAdapter(dataAdapter);
+
+        if(fav_genres.length() > 0)
+            findViewById(R.id.genre_pick_layout).setVisibility(View.INVISIBLE);
+
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            public void onItemClick(AdapterView<?> parent, View view,
+//                                    int position, long id) {
+//                // When clicked, show a toast with the TextView text
+//                Genre genre = (Genre) parent.getItemAtPosition(position);
+//                Toast.makeText(getApplicationContext(),
+//                        "Clicked on Row: " + genre.getName(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//        });
+
+    }
+
+
 
 
 

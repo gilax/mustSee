@@ -10,6 +10,15 @@ import com.google.gson.annotations.SerializedName;
 @SuppressWarnings("unused")
 public class Genre {
 
+
+
+    //todo remove constructor later:
+    public Genre(long id, String name)
+    {
+        this.mId = id;
+        this.mName = name;
+    }
+
     @Expose
     @SerializedName("id")
     private Long mId;
