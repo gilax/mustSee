@@ -10,8 +10,6 @@ import com.google.gson.annotations.SerializedName;
 @SuppressWarnings("unused")
 public class Genre {
 
-
-
     //todo remove constructor later:
     public Genre(long id, String name)
     {

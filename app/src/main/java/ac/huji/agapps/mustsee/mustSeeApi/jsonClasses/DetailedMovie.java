@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
-public class DetailedMovie {
+public class DetailedMovie implements ImageableAPIElement {
 
     @SerializedName("adult")
     private Boolean mAdult;
@@ -68,6 +68,7 @@ public class DetailedMovie {
         mAdult = adult;
     }
 
+    @Override
     public String getBackdropPath() {
         return mBackdropPath;
     }
@@ -156,6 +157,7 @@ public class DetailedMovie {
         mPopularity = popularity;
     }
 
+    @Override
     public String getPosterPath() {
         return mPosterPath;
     }

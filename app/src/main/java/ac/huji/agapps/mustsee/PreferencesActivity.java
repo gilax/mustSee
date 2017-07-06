@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,7 +39,7 @@ import ac.huji.agapps.mustsee.mustSeeApi.MovieGenresAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 
-public class MainActivity extends AppCompatActivity implements  View.OnClickListener{
+public class PreferencesActivity extends AppCompatActivity implements  View.OnClickListener{
 
     private SignInButton mGoogleButton; //google sign in button
     private static final int RC_SIGN_IN = 1;
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     private ListView listView;
     private MovieGenresAPI genreAPI;
     private Genres genres;
-    private MyCustomAdapter dataAdapter = null;
+    private GenresAdapter dataAdapter = null;
     private String fav_genres;
 
 
@@ -97,8 +96,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                 .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-                        Toast.makeText(MainActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
+                        Toast.makeText(PreferencesActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
                     }
                 }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
 
@@ -106,23 +104,23 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
             @Override
             public void onClick(View v) {
                 signIn();
-                //save genres in sharedprefences
+                //save genres in sharedPrefences
                 saveGenres();
 //
             }
         });
 
-//      for testing purposes, reset sharedpreferences in comment below
+//      for testing purposes, reset sharedPreferences in comment below
 //        resetFavoriteGenres();
         getFavGenres();
         displayListView();
     }
 
     /**
-     * used to reset sharedpreferences for debugging
+     * used to reset sharedPreferences for debugging
      */
     private void resetFavoriteGenres() {
-        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.userGenres),
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sharedPref.edit();
         edit.clear();
@@ -134,18 +132,18 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
      * tries to retrieve favorite genres in shared preferences
      */
     private void getFavGenres() {
-        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.userGenres),
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
-        fav_genres = sharedPref.getString(String.valueOf(R.string.shared_pref_id), "");
+        fav_genres = sharedPref.getString(getString(R.string.userGenres), "");
         if(fav_genres.length() != 0)
-            Toast.makeText(MainActivity.this, fav_genres, Toast.LENGTH_SHORT).show();
+            Toast.makeText(PreferencesActivity.this, fav_genres, Toast.LENGTH_SHORT).show();
 
     }
 
     private void saveGenres() {
         HashMap<Long, Genre> checked = dataAdapter.getChecked();
 
-        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.userGenres),
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
@@ -155,21 +153,22 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         }
         //stores the fav genres with a syntax of <genre.id>.<genre.name>,
         //for example: 123.horror,124.action, and so on.
-        editor.putString(String.valueOf(R.string.shared_pref_id), fav_genres_string);
+        editor.putString(getString(R.string.userGenres), fav_genres_string);
 
         editor.apply();
     }
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
     }
+
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
     private void signOut() {
         // Firebase sign out
         mAuth.signOut();
@@ -182,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                         updateUI(null);
                     }
                 });
-        Toast.makeText(MainActivity.this, "logged out", Toast.LENGTH_SHORT).show();
+        Toast.makeText(PreferencesActivity.this, "logged out", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -197,19 +196,19 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
-
                 updateUI(null);
                 // Google Sign In failed, update UI appropriately
                 // ...
             }
+        } else {
+            Toast.makeText(PreferencesActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
         }
 
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-
-
         progressDialog.setMessage("Registering Please Wait...");
+        progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
@@ -225,11 +224,10 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, R.string.auth_fail,
+                            Toast.makeText(PreferencesActivity.this, R.string.auth_fail,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
                         // ...
                     }
                 });
@@ -246,14 +244,12 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
             mStatusBar.setText("user: " + user.getDisplayName());
             mGoogleButton.setVisibility(View.GONE);
             mLogOutButton.setVisibility(View.VISIBLE);
-            findViewById(R.id.genre_pick_layout).setVisibility(View.INVISIBLE);
+            mLogOutButton.setText(user.getDisplayName());
         } else {
             //user logged out, set log out button invisible
             mStatusBar.setText("user: Disconnected");
-
             mGoogleButton.setVisibility(View.VISIBLE);
             mLogOutButton.setVisibility(View.GONE);
-
         }
     }
 
@@ -284,10 +280,10 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         my_list.add(new Genre(126, "animated"));
         my_list.add(new Genre(127, "romance"));
 
-        dataAdapter = new MyCustomAdapter(this, R.layout.genre_check_box, my_list);
+        dataAdapter = new GenresAdapter(this, R.layout.genre_check_box, my_list);
         //todo: replace upper line with this (comment below)
 
-//        dataAdapter = new MyCustomAdapter(this, R.layout.genre_check_box, genres.getGenres());
+//        dataAdapter = new GenresAdapter(this, R.layout.genre_check_box, genres.getGenres());
         listView = (ListView) findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
@@ -305,11 +301,5 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
 //                        Toast.LENGTH_LONG).show();
 //            }
 //        });
-
     }
-
-
-
-
-
 }

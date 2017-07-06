@@ -14,18 +14,13 @@ import java.util.List;
 
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 
-/**
- * Created by Aviv on 04/07/2017.
- */
-
-public class MyCustomAdapter extends ArrayAdapter<Genre> {
+public class GenresAdapter extends ArrayAdapter<Genre> {
 
     private List<Genre> genreList;
 
     private HashMap<Long, Genre> mGenreIsChecked;
 
-    public MyCustomAdapter(Context context, int textViewResourceId,
-                           List<Genre> genreList) {
+    public GenresAdapter(Context context, int textViewResourceId, List<Genre> genreList) {
         super(context, textViewResourceId, genreList);
         this.genreList = new ArrayList<Genre>();
         this.genreList.addAll(genreList);
@@ -40,11 +35,10 @@ public class MyCustomAdapter extends ArrayAdapter<Genre> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         ViewHolder holder = null;
         if (convertView == null) {
-            LayoutInflater vi = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = vi.inflate(R.layout.genre_check_box, null);
+            LayoutInflater li = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = li.inflate(R.layout.genre_check_box, null);
 
             holder = new ViewHolder();
             holder.genre_name = (TextView) convertView.findViewById(R.id.genre_name);
@@ -77,12 +71,9 @@ public class MyCustomAdapter extends ArrayAdapter<Genre> {
         holder.checkBox.setChecked(isSelected);
         holder.checkBox.setTag(genre);
         return convertView;
-
     }
 
-    public HashMap<Long, Genre> getChecked()
-    {
+    public HashMap<Long, Genre> getChecked() {
         return mGenreIsChecked;
     }
-
 }
