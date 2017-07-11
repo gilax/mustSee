@@ -23,6 +23,8 @@ public class Genre {
     @Expose
     @SerializedName("name")
     private String mName;
+    @SerializedName("preferred")
+    private Boolean mPreferred = false;
 
     public Long getId() {
         return mId;
@@ -40,11 +42,20 @@ public class Genre {
         mName = name;
     }
 
+    public Boolean getPreferred() {
+        return mPreferred;
+    }
+
+    public void setPreferred(Boolean preferred) {
+        this.mPreferred = preferred;
+    }
+
     @Override
     public String toString() {
         return " {\n" +
                 "  \"id\": " + getId() + ",\n" +
-                "  \"name\": \"" + getName() + "\"\n" +
+                "  \"name\": \"" + getName() + "\",\n" +
+                "  \"preferred\": " + getPreferred() + "\n" +
                 "}";
     }
 }

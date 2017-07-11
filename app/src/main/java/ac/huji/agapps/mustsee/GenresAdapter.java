@@ -9,23 +9,23 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 
 public class GenresAdapter extends ArrayAdapter<Genre> {
 
     private List<Genre> genreList;
 
-    private HashMap<Long, Genre> mGenreIsChecked;
-
-    public GenresAdapter(Context context, int textViewResourceId, List<Genre> genreList) {
-        super(context, textViewResourceId, genreList);
+    public GenresAdapter(Context context, int textViewResourceId, Genres genres) {
+        super(context, textViewResourceId, genres.getGenres());
         this.genreList = new ArrayList<Genre>();
-        this.genreList.addAll(genreList);
+        this.genreList.addAll(genres.getGenres());
+    }
 
-        mGenreIsChecked = new HashMap<Long, Genre>();
+    public List<Genre> getAllItems() {
+        return genreList;
     }
 
     private class ViewHolder {
@@ -34,7 +34,7 @@ public class GenresAdapter extends ArrayAdapter<Genre> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
         if (convertView == null) {
             LayoutInflater li = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -43,37 +43,23 @@ public class GenresAdapter extends ArrayAdapter<Genre> {
             holder = new ViewHolder();
             holder.genre_name = (TextView) convertView.findViewById(R.id.genre_name);
             holder.checkBox = (CheckBox) convertView.findViewById(R.id.genre_checkbox);
+            holder.checkBox.setChecked(genreList.get(position).getPreferred());
             convertView.setTag(holder);
 
             holder.checkBox.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    CheckBox cb = (CheckBox) v ;
-                    Genre genre = (Genre) cb.getTag();
-
-                    if(mGenreIsChecked.get(genre.getId()) != null)
-                          mGenreIsChecked.remove(genre.getId());
-                    else
-                        mGenreIsChecked.put(genre.getId(), genre);
-//                    perhaps add a function that can tell us if a genre was selected
-//                    genre.setSelected(cb.isChecked());
+                    genreList.get(position).setPreferred(!genreList.get(position).getPreferred());
                 }
             });
         }
         else {
             holder = (ViewHolder) convertView.getTag();
         }
-        boolean isSelected = false;
 
         Genre genre = genreList.get(position);
         holder.genre_name.setText(genre.getName());
-        if(mGenreIsChecked.get(genre.getId()) != null)
-            isSelected = true;
-        holder.checkBox.setChecked(isSelected);
+        holder.checkBox.setChecked(genre.getPreferred());
         holder.checkBox.setTag(genre);
         return convertView;
-    }
-
-    public HashMap<Long, Genre> getChecked() {
-        return mGenreIsChecked;
     }
 }

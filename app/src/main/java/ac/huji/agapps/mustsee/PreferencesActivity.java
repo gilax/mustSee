@@ -30,8 +30,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -56,13 +58,11 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private MovieGenresAPI genreAPI;
     private Genres genres;
     private GenresAdapter dataAdapter = null;
-    private String fav_genres;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_preferences);
 
 //        todo :need to take from DB instead from API
 //        todo: uncomment this, it didn't work for me for some reason so I manually put a list of genres later on
@@ -134,23 +134,18 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private void getFavGenres() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
-        fav_genres = sharedPref.getString(getString(R.string.userGenres), "");
-        if(fav_genres.length() != 0)
-            Toast.makeText(PreferencesActivity.this, fav_genres, Toast.LENGTH_SHORT).show();
-
+        genres = new Gson().fromJson(sharedPref.getString(getString(R.string.userGenres), ""), Genres.class);
     }
 
     private void saveGenres() {
-        HashMap<Long, Genre> checked = dataAdapter.getChecked();
-
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
+                SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        String fav_genres_string = "";
-        for (Long id : checked.keySet()) {
-            fav_genres_string += id+"."+checked.get(id).getName() + ",";
-        }
+        Gson gson = new Gson();
+        genres.setGenres(dataAdapter.getAllItems());
+        String fav_genres_string = gson.toJson(genres);
+
         //stores the fav genres with a syntax of <genre.id>.<genre.name>,
         //for example: 123.horror,124.action, and so on.
         editor.putString(getString(R.string.userGenres), fav_genres_string);
@@ -271,25 +266,24 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private void displayListView() {
 
         //create an ArrayAdaptar from the String Array
+        if (genres == null) {
 
 // todo: remove this later, was for testing (creating custom list of genres), also remove constructor in Genre
-        List<Genre> my_list = new ArrayList<>();
-        my_list.add(new Genre(123, "action"));
-        my_list.add(new Genre(124, "comedy"));
-        my_list.add(new Genre(125, "horror"));
-        my_list.add(new Genre(126, "animated"));
-        my_list.add(new Genre(127, "romance"));
+            List<Genre> my_list = new ArrayList<>();
+            my_list.add(new Genre(123, "action"));
+            my_list.add(new Genre(124, "comedy"));
+            my_list.add(new Genre(125, "horror"));
+            my_list.add(new Genre(126, "animated"));
+            my_list.add(new Genre(127, "romance"));
+            genres = new Genres();
+            genres.setGenres(my_list);
+            genres.setDate(new Date());
+        }
 
-        dataAdapter = new GenresAdapter(this, R.layout.genre_check_box, my_list);
-        //todo: replace upper line with this (comment below)
-
-//        dataAdapter = new GenresAdapter(this, R.layout.genre_check_box, genres.getGenres());
+        dataAdapter = new GenresAdapter(this, R.layout.genre_check_box, genres);
         listView = (ListView) findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
-
-        if(fav_genres.length() > 0)
-            findViewById(R.id.genre_pick_layout).setVisibility(View.INVISIBLE);
 
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //            public void onItemClick(AdapterView<?> parent, View view,

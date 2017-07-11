@@ -78,10 +78,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginLeft="14dp"
-            android:layout_marginStart="14dp"
+            android:layout_marginBottom="15dp"
             android:layout_marginTop="15dp"
-            android:padding="10dp"
             android:text="@string/genre_pick"
             android:textSize="20sp" />
 
@@ -92,8 +90,7 @@
             app:layout_constraintTop_toBottomOf="@id/genre_list_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_below="@+id/genre_list_text" />
+            app:layout_constraintRight_toRightOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

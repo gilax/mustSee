@@ -4,7 +4,7 @@
     <string name="error_msg">You got an Error</string>
     <string name="auth_fail">Authentication failed.</string>
 
-    <string name="genre_pick">Pick your favorite movie genres.</string>
+    <string name="genre_pick">Pick your favorite movie genres:</string>
     <string name="userGenres">userGenres</string>
 
     <string name="shared_pref_id">shared_pref_id</string>
