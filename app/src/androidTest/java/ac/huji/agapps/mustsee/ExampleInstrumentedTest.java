@@ -15,11 +15,13 @@ import java.util.List;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieDetailsAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieGenresAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
+import ac.huji.agapps.mustsee.mustSeeApi.MovieTrailerAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.videosClasses.MovieVideoResults;
 
 import static org.junit.Assert.*;
 
@@ -94,5 +96,16 @@ public class ExampleInstrumentedTest {
             assertTrue("Genre (" + g.getName() + ", " + g.getId() + ") wasn't in genres list",
                     Arrays.asList(genresExpected).contains(g.getId()));
         }
+    }
+
+    @Test
+    public void MovieTrailer_isCorrect() throws Exception {
+        MovieVideoResults results = new MovieTrailerAPI().getMovieVideos(122);
+        assertNotNull(results);
+        Log.d("MOVIE VIDEO:", results.toString());
+        assertNotNull(results.getResults());
+        assertTrue(results.getResults().size()>0);
+        assertNotNull(results.getResults().get(0));
+        assertEquals("YouTube", results.getResults().get(0).getSite());
     }
 }

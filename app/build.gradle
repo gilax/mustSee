@@ -16,10 +16,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "TMDB_API_KEY", tmdbApiKey
+            buildConfigField "String", "YOU_TUBE_API_KEY", youTubeApiKey
         }
 
         debug {
             buildConfigField "String", "TMDB_API_KEY", tmdbApiKey
+            buildConfigField "String", "YOU_TUBE_API_KEY", youTubeApiKey
             debuggable true
         }
     }

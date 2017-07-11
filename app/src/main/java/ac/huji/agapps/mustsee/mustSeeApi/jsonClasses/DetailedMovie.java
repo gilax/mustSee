@@ -1,64 +1,108 @@
 
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.view.View;
+
 import java.util.List;
 import javax.annotation.Generated;
+
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerView;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import ac.huji.agapps.mustsee.BuildConfig;
+import ac.huji.agapps.mustsee.R;
+import ac.huji.agapps.mustsee.mustSeeApi.MovieTrailerAPI;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.videosClasses.MovieVideoResults;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
 public class DetailedMovie implements ImageableAPIElement {
 
+    private static final String TAG = "DETAILED MOVIE TMDB API";
+
+    @Expose
     @SerializedName("adult")
     private Boolean mAdult;
+    @Expose
     @SerializedName("backdrop_path")
     private String mBackdropPath;
+    @Expose
     @SerializedName("belongs_to_collection")
     private Object mBelongsToCollection;
+    @Expose
     @SerializedName("budget")
     private Long mBudget;
+    @Expose
     @SerializedName("genres")
     private List<Genre> mGenres;
+    @Expose
     @SerializedName("homepage")
     private String mHomepage;
+    @Expose
     @SerializedName("id")
     private Long mId;
+    @Expose
     @SerializedName("imdb_id")
     private String mImdbId;
+    @Expose
     @SerializedName("original_language")
     private String mOriginalLanguage;
+    @Expose
     @SerializedName("original_title")
     private String mOriginalTitle;
+    @Expose
     @SerializedName("overview")
     private String mOverview;
+    @Expose
     @SerializedName("popularity")
     private Double mPopularity;
+    @Expose
     @SerializedName("poster_path")
     private String mPosterPath;
+    @Expose
     @SerializedName("production_companies")
     private List<ProductionCompany> mProductionCompanies;
+    @Expose
     @SerializedName("production_countries")
     private List<ProductionCountry> mProductionCountries;
+    @Expose
     @SerializedName("release_date")
     private String mReleaseDate;
+    @Expose
     @SerializedName("revenue")
     private Long mRevenue;
+    @Expose
     @SerializedName("runtime")
     private Long mRuntime;
+    @Expose
     @SerializedName("spoken_languages")
     private List<SpokenLanguage> mSpokenLanguages;
+    @Expose
     @SerializedName("status")
     private String mStatus;
+    @Expose
     @SerializedName("tagline")
     private String mTagline;
+    @Expose
     @SerializedName("title")
     private String mTitle;
+    @Expose
     @SerializedName("video")
     private Boolean mVideo;
+    @Expose
     @SerializedName("vote_average")
     private Double mVoteAverage;
+    @Expose
     @SerializedName("vote_count")
     private Long mVoteCount;
+    @SerializedName("youtube_id")
+    private String mYouTubeId = "";
 
     public Boolean getAdult() {
         return mAdult;
@@ -262,6 +306,14 @@ public class DetailedMovie implements ImageableAPIElement {
         mVoteCount = voteCount;
     }
 
+    public String getYouTubeId() {
+        return mYouTubeId;
+    }
+
+    public void setYouTubeId(String youTubeId) {
+        this.mYouTubeId = youTubeId;
+    }
+
     @Override
     public String toString() {
         return "{\n" +
@@ -289,7 +341,141 @@ public class DetailedMovie implements ImageableAPIElement {
                 "  \"title\": \"" + getTitle() + "\",\n" +
                 "  \"video\": " + getVideo() + ",\n" +
                 "  \"vote_average\": " + getVoteAverage() + ",\n" +
-                "  \"vote_count\": " + getVoteCount() + "\n" +
+                "  \"vote_count\": " + getVoteCount() + ",\n" +
+                "  \"youtube_id\": " + getYouTubeId() + "\n" +
                 "}";
+    }
+
+    public YouTubePlayerView getTrailerPlayer(Activity activity) {
+        YouTubePlayerView playerView = (YouTubePlayerView) activity.findViewById(R.id.trailer_video_player);
+        if (this.getVideo()) {
+            playerView.setVisibility(View.VISIBLE);
+            if (mYouTubeId.length() == 0) {
+                new TrailerAsyncTask(playerView).execute(this);
+            } else {
+                playerView.initialize(BuildConfig.YOU_TUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
+                    @Override
+                    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
+                        player.setPlayerStateChangeListener(new TrailerEventListener());
+                        player.setPlaybackEventListener(new TrailerEventListener());
+
+                        if (!wasRestored) {
+                            // get the YouTube trailer key from this detailed movie
+                            player.cueVideo(getYouTubeId());
+                        }
+                    }
+
+                    @Override
+                    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+                        Log.e(TAG, "Failured to Initialize!");
+                    }
+                });
+            }
+        } else {
+            playerView.setVisibility(View.GONE);
+        }
+
+        return playerView;
+    }
+
+    private class TrailerEventListener implements YouTubePlayer.PlaybackEventListener, YouTubePlayer.PlayerStateChangeListener {
+        @Override
+        public void onPlaying() {
+
+        }
+
+        @Override
+        public void onPaused() {
+
+        }
+
+        @Override
+        public void onStopped() {
+
+        }
+
+        @Override
+        public void onBuffering(boolean b) {
+
+        }
+
+        @Override
+        public void onSeekTo(int i) {
+
+        }
+
+        @Override
+        public void onLoading() {
+
+        }
+
+        @Override
+        public void onLoaded(String s) {
+
+        }
+
+        @Override
+        public void onAdStarted() {
+
+        }
+
+        @Override
+        public void onVideoStarted() {
+
+        }
+
+        @Override
+        public void onVideoEnded() {
+
+        }
+
+        @Override
+        public void onError(YouTubePlayer.ErrorReason errorReason) {
+
+        }
+    }
+
+    private class TrailerAsyncTask extends AsyncTask<DetailedMovie, Void, MovieVideoResults> {
+
+        private static final String YOUTUBE = "YouTube";
+        YouTubePlayerView playerView;
+
+        public TrailerAsyncTask(YouTubePlayerView playerView) {
+            super();
+            this.playerView = playerView;
+        }
+
+        @Override
+        protected MovieVideoResults doInBackground(DetailedMovie... params) {
+            MovieVideoResults results = (new MovieTrailerAPI()).getMovieVideos(params[0].getId().intValue());
+            return results;
+        }
+
+        @Override
+        protected void onPostExecute(final MovieVideoResults results) {
+            if (results != null && results.getResults().size() > 0 && results.getResults().get(0).getSite().equals(YOUTUBE)) {
+                mYouTubeId = results.getResults().get(0).getKey();
+                playerView.initialize(BuildConfig.YOU_TUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
+                    @Override
+                    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
+                        player.setPlayerStateChangeListener(new TrailerEventListener());
+                        player.setPlaybackEventListener(new TrailerEventListener());
+
+                        if (!wasRestored) {
+                            // get the YouTube trailer key from the first result
+                            player.cueVideo(mYouTubeId);
+                        }
+                    }
+
+                    @Override
+                    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult initializationResult) {
+                        Log.e(TAG, "Failured to Initialize!");
+                    }
+                });
+            } else {
+                playerView.setVisibility(View.GONE);
+                playerView = null;
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ import com.google.gson.JsonNull;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
 
 public class MovieDetailsAPI extends TmdbApiRequest {
-    private static final String GENRES_BASE_URL = "/movie/";
+    private static final String DETAILS_BASE_URL = "/movie/";
 
     private final String TAG = "TMDB Movie details API";
 
@@ -20,10 +20,10 @@ public class MovieDetailsAPI extends TmdbApiRequest {
      */
     @Nullable
     public DetailedMovie getMovieDetails(int id) {
-        this.url += GENRES_BASE_URL + id + getApiKeyForURL();
+        this.url += DETAILS_BASE_URL + id + getApiKeyForURL();
 
         String response = getResponseForHTTPGetRequest();
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         DetailedMovie detailedMovie = gson.fromJson(response, DetailedMovie.class);
 
         if (detailedMovie != null) {
