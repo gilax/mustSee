@@ -7,7 +7,7 @@ import com.google.gson.JsonNull;
 
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
-public class MovieSearchAPI extends TmdbApiRequest {
+public class MovieSearchAPI extends TmdbApiRequest implements SearchRequest {
     private static final String SEARCH_BASE_URL = "/search/movie";
     private static final String QUERY_PARAMETER = "&query=";
     private static final String PAGE_NUMBER_PARAMETER = "&page=";
@@ -29,6 +29,7 @@ public class MovieSearchAPI extends TmdbApiRequest {
      * Checks if there is another page of search
      * @return true if there is another page to search, else false
      */
+    @Override
     public boolean haveNext() {
         return (this.nextPageNumber <= this.numberOfPages);
     }
@@ -38,12 +39,14 @@ public class MovieSearchAPI extends TmdbApiRequest {
      * @return next results page
      */
     @Nullable
+    @Override
     public MovieSearchResults searchNext() {
         return search(this.nextPageNumber);
     }
 
     @Nullable
-    private MovieSearchResults search(int pageNumber) {
+    @Override
+    public MovieSearchResults search(int pageNumber) {
         this.url += SEARCH_BASE_URL + getApiKeyForURL();
         this.url += QUERY_PARAMETER + query;
         this.url += PAGE_NUMBER_PARAMETER + pageNumber;

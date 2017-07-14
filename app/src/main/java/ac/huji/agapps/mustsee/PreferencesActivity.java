@@ -34,7 +34,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import ac.huji.agapps.mustsee.mustSeeApi.MovieGenresAPI;

@@ -59,4 +59,16 @@ public class MovieSearchResults {
                 "  \"results\": " + getResults().toString() + "\n" +
                 "}";
     }
+
+    public boolean addResults(MovieSearchResults searchResults) {
+        if (searchResults != null &&
+                searchResults != this &&
+                searchResults.getTotalPages() == getTotalPages() &&
+                searchResults.getTotalResults() == getTotalResults()) {
+            mPage = searchResults.getPage();
+            return mResults.addAll(searchResults.getResults());
+        } else {
+            return false;
+        }
+    }
 }

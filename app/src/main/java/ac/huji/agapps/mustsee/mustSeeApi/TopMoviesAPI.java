@@ -7,7 +7,7 @@ import com.google.gson.JsonNull;
 
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
-public class TopMoviesAPI extends TmdbApiRequest {
+public class TopMoviesAPI extends TmdbApiRequest implements SearchRequest {
     private static final String TOP_MOVIES_BASE_URL = "/discover/movie";
     private static final String LANGUAGE_PARAMETER = "&language";
     private static final String ENGLISH_LANGUAGE = "en-US";
@@ -27,6 +27,7 @@ public class TopMoviesAPI extends TmdbApiRequest {
      * Checks if there is another page of search
      * @return true if there is another page to search, else false
      */
+    @Override
     public boolean haveNext() {
         return (this.nextPageNumber <= this.numberOfPages);
     }
@@ -36,12 +37,14 @@ public class TopMoviesAPI extends TmdbApiRequest {
      * @return next results page
      */
     @Nullable
+    @Override
     public MovieSearchResults searchNext() {
         return search(this.nextPageNumber);
     }
 
     @Nullable
-    private MovieSearchResults search(int pageNumber) {
+    @Override
+    public MovieSearchResults search(int pageNumber) {
         this.url += TOP_MOVIES_BASE_URL + getApiKeyForURL();
         this.url += LANGUAGE_PARAMETER + ENGLISH_LANGUAGE;
         this.url += SORT_BY_PARAMETER + POPULARITY_DESC_SORT_BY;
