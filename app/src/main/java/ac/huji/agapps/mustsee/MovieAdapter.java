@@ -1,91 +1,146 @@
 package ac.huji.agapps.mustsee;
 
-import android.os.AsyncTask;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
 
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
-import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "MOVIE ADAPTER";
 
+    private final int VIEW_TYPE_MOVIE = 0;
+    private final int VIEW_TYPE_LOADING = 1;
+
     private Fragment fragment;
-    private SearchRequest search;
+    @Nullable
     private MovieSearchResults searchResults;
+    @Nullable
+    private OnLoadMoreListener onLoadMoreListener;
+    private int visibleThreshold = 5;
+    private int lastVisibleItem, totalItemCount;
+    private boolean isLoading;
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder{
-        public ImageView poster;
-        public TextView title;
-        public Button mainFunction;
-        public TextView overflow;
+
+    /***
+     * View holder for a single result
+     */
+    private class MovieViewHolder extends RecyclerView.ViewHolder{
+        ImageView poster;
+        TextView title;
+        FloatingActionButton mainFunction;
+        TextView overflow;
 
 
-        public MovieViewHolder(View itemView) {
+        MovieViewHolder(View itemView) {
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.movie_title);
             poster = (ImageView) itemView.findViewById(R.id.movie_poster);
-            mainFunction = (Button) itemView.findViewById(R.id.movie_card_button);
+            mainFunction = (FloatingActionButton) itemView.findViewById(R.id.movie_card_button);
             overflow = (TextView) itemView.findViewById(R.id.overflow);
         }
     }
 
-    public MovieAdapter(Fragment fragment, SearchRequest search) {
+    /**
+     * View holder when loading a new page of results.
+     * When (searchResults.size() == 0 and searchResults.getTotalResults == null)
+     * or (searchResults.getLastResult() == null) this element will be in the recyclerView
+     */
+    private class LoadingViewHolder extends RecyclerView.ViewHolder {
+        ProgressBar progressBar;
+
+        LoadingViewHolder(View itemView) {
+            super(itemView);
+            progressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
+        }
+    }
+
+    public MovieAdapter(RecyclerView recyclerView, @Nullable MovieSearchResults results, Fragment fragment) {
         this.fragment = fragment;
-        this.search = search;
-        this.searchResults = new MovieSearchResults();
-    }
+        this.searchResults = results;
 
-    @Override
-    public MovieAdapter.MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                                        .inflate(R.layout.movie_card, parent, false);
-        return new MovieViewHolder(itemView);
-    }
+        final StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) recyclerView.getLayoutManager();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                totalItemCount = layoutManager.getItemCount();
+                int[] visiblePositions = layoutManager.findLastVisibleItemPositions(null);
+                Arrays.sort(visiblePositions);
+                lastVisibleItem = visiblePositions[visiblePositions.length - 1];
 
-    @Override
-    public void onBindViewHolder(final MovieAdapter.MovieViewHolder holder, int position) {
-        if (searchResults != null &&
-                searchResults.getResults() != null &&
-                searchResults.getResults().size() > 0 &&
-                searchResults.getTotalResults() > position) {
-            Result movie;
-            try {
-                movie = searchResults.getResults().get(position);
-            } catch (IndexOutOfBoundsException e) {
-                try {
-                    new SearchAsyncTask().execute().get();
-                } catch (InterruptedException | ExecutionException e1) {
-                    Log.e(TAG, "Search Failed", e1);
+                Log.d(TAG, "isLoading = " + isLoading + ", totalItemCount = " + totalItemCount + ", lastVisibleItem = " + lastVisibleItem + ", visibleThreshold = " + visibleThreshold);
+
+                if (!isLoading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                    if (onLoadMoreListener != null) {
+                        isLoading = true;
+                        onLoadMoreListener.onLoadMore();
+                    }
                 }
-                movie = searchResults.getResults().get(position);
             }
+        });
+    }
 
-            ImageAPI.putPosterToView(fragment.getContext(), movie, holder.poster);
-            holder.title.setText(movie.getTitle());
-            holder.overflow.setOnClickListener(new View.OnClickListener() {
+    public void setOnLoadMoreListener(@Nullable OnLoadMoreListener onLoadMoreListener) {
+        this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView;
+        switch (viewType) {
+            case VIEW_TYPE_MOVIE:
+                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_card, parent, false);
+                return new MovieViewHolder(itemView);
+            case VIEW_TYPE_LOADING:
+                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_loading, parent, false);
+                return new LoadingViewHolder(itemView);
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof MovieViewHolder) {
+            assert searchResults != null;
+            Result movie = searchResults.getResults().get(position);
+            final MovieViewHolder movieHolder = (MovieViewHolder) holder;
+            ImageAPI.putPosterToView(fragment.getContext(), movie, movieHolder.poster);
+            movieHolder.title.setText(movie.getTitle());
+            movieHolder.overflow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showPopupMenu(holder.overflow);
+                    showPopupMenu(movieHolder.overflow);
                 }
             });
+        } else if (holder instanceof LoadingViewHolder) {
+            LoadingViewHolder loadingHolder = (LoadingViewHolder) holder;
+            loadingHolder.progressBar.setIndeterminate(true);
         }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (searchResults == null || searchResults.getLastResult() == null) ? VIEW_TYPE_LOADING : VIEW_TYPE_MOVIE;
     }
 
     private void showPopupMenu(View view) {
@@ -109,46 +164,18 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public int getItemCount() {
-        if (searchResults == null)
-            return 0;
-
-        return searchResults.getTotalResults().intValue();
+        return (searchResults == null) ? 0 : searchResults.getResults().size();
     }
 
-    private class SearchAsyncTask extends AsyncTask<Void, Void, MovieSearchResults> {
+    public void setLoaded() {
+        isLoading = false;
+    }
 
-        int pageBefore;
-
-        // if we want to add ProgressDialog or something close when searching for more results -
-        // create it as a private member and start it at onPre() and finish it at onPost()
-
-
-        @Override
-        protected void onPreExecute() {
-            if (searchResults != null)
-                pageBefore = searchResults.getPage().intValue();
-            else
-                pageBefore = 0;
-        }
-
-        @Override
-        protected MovieSearchResults doInBackground(Void... params) {
-            if (search.haveNext())
-                return search.searchNext();
-            else
-                return null;
-        }
-
-        @Override
-        protected void onPostExecute(MovieSearchResults searchResults) {
-            if (searchResults != null &&
-                    searchResults.getResults() != null &&
-                    searchResults.getResults().size() > 0 &&
-                    (searchResults.getPage().intValue() == pageBefore + 1)) {
-                MovieAdapter.this.searchResults.addResults(searchResults);
-            } else {
-                MovieAdapter.this.searchResults = null;
-            }
-        }
+    public boolean addSearchResults(MovieSearchResults searchResults) {
+        if (this.searchResults == null) {
+            this.searchResults = searchResults;
+            return true;
+        } else
+            return this.searchResults.addResults(searchResults);
     }
 }

@@ -5,6 +5,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.ImageableAPIElement;
 
 public class ImageAPI {
@@ -18,7 +19,11 @@ public class ImageAPI {
 
     private static void loadImageToView(Context context, String path, ImageView imageView) {
         Picasso.with(context)
+                .setLoggingEnabled(true);
+        Picasso.with(context)
                 .load(path)
+                .fit()
+                .centerCrop()
                 .error(android.R.drawable.ic_delete)
                 .into(imageView);
     }

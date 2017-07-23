@@ -1,6 +1,7 @@
 package ac.huji.agapps.mustsee.mustSeeApi;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
@@ -41,6 +42,7 @@ public class MovieSearchAPI extends TmdbApiRequest implements SearchRequest {
     @Nullable
     @Override
     public MovieSearchResults searchNext() {
+        resetUrl();
         return search(this.nextPageNumber);
     }
 

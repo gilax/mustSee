@@ -39,6 +39,7 @@ public class TopMoviesAPI extends TmdbApiRequest implements SearchRequest {
     @Nullable
     @Override
     public MovieSearchResults searchNext() {
+        resetUrl();
         return search(this.nextPageNumber);
     }
 

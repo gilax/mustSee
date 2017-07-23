@@ -21,4 +21,6 @@
     <string name="add_to_wishlist">Add to wishlist</string>
     <string name="vertical_ellipsis">⋮</string>
     <string name="wishlist_remove">Remove from wishlist</string>
+    <string name="search_hint">Search a movie</string>
+    <string name="poster_description">Movie\'s poster</string>
 </resources>

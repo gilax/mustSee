@@ -62,4 +62,8 @@ public class TmdbApiRequest {
         }
         return response;
     }
+
+    protected void resetUrl() {
+        this.url = TMDB_BASE_URL;
+    }
 }
