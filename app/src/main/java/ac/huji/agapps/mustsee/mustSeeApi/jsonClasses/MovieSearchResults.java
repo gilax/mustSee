@@ -79,7 +79,10 @@ public class MovieSearchResults {
     }
 
     public boolean addNullToResults() {
-        return mResults.add(null);
+        if (mResults.size() == 0 ||(mResults.size() > 0 && mResults.get(mResults.size() - 1) != null))
+            return mResults.add(null);
+        else
+            return false;
     }
 
     public Result removeLastFromResults() {
@@ -88,5 +91,13 @@ public class MovieSearchResults {
 
     public Result getLastResult() {
         return mResults.get(mResults.size() - 1);
+    }
+
+    public boolean isNull(int position) {
+        try {
+            return (mResults.get(position) == null);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
     }
 }

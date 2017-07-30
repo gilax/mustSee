@@ -65,4 +65,8 @@ public class MovieSearchAPI extends TmdbApiRequest implements SearchRequest {
             return null;
         }
     }
+
+    public String getQuery() {
+        return query;
+    }
 }

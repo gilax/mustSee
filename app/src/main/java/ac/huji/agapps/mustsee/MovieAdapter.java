@@ -29,6 +29,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private final int VIEW_TYPE_MOVIE = 0;
     private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_UNKNOWN = 2;
 
     private Fragment fragment;
     @Nullable
@@ -37,7 +38,8 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private OnLoadMoreListener onLoadMoreListener;
     private int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
-    private boolean isLoading;
+    private int previousTotalItemCount = 0;
+    private boolean isLoading = true;
 
 
     /***
@@ -87,7 +89,19 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Arrays.sort(visiblePositions);
                 lastVisibleItem = visiblePositions[visiblePositions.length - 1];
 
-                Log.d(TAG, "isLoading = " + isLoading + ", totalItemCount = " + totalItemCount + ", lastVisibleItem = " + lastVisibleItem + ", visibleThreshold = " + visibleThreshold);
+                if (totalItemCount < previousTotalItemCount) {
+                    previousTotalItemCount = totalItemCount;
+                    if (totalItemCount == 0) {
+                        isLoading = true;
+                    }
+                }
+
+                if (isLoading && (totalItemCount > previousTotalItemCount)) {
+                    isLoading = false;
+                    previousTotalItemCount = totalItemCount;
+                }
+
+                Log.d(TAG, "isLoading = " + isLoading + ", previousTotalItemCount = " + previousTotalItemCount + ", totalItemCount = " + totalItemCount + ", lastVisibleItem = " + lastVisibleItem + ", visibleThreshold = " + visibleThreshold);
 
                 if (!isLoading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
                     if (onLoadMoreListener != null) {
@@ -140,7 +154,13 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        return (searchResults == null || searchResults.getLastResult() == null) ? VIEW_TYPE_LOADING : VIEW_TYPE_MOVIE;
+        if (searchResults == null || searchResults.getLastResult() == null)
+            if (!(searchResults.isNull(position - 1)))
+                return VIEW_TYPE_LOADING;
+            else
+                return VIEW_TYPE_UNKNOWN;
+        else
+            return VIEW_TYPE_MOVIE;
     }
 
     private void showPopupMenu(View view) {
@@ -177,5 +197,12 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return true;
         } else
             return this.searchResults.addResults(searchResults);
+    }
+
+    public void removeSearchResults() {
+        this.searchResults = new MovieSearchResults();
+        this.searchResults.addNullToResults();
+        this.isLoading = true;
+        this.previousTotalItemCount = 0;
     }
 }

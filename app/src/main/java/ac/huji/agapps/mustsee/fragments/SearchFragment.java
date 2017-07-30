@@ -15,8 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.concurrent.ExecutionException;
-
 import ac.huji.agapps.mustsee.MovieAdapter;
 import ac.huji.agapps.mustsee.OnLoadMoreListener;
 import ac.huji.agapps.mustsee.R;
@@ -71,24 +69,15 @@ public class SearchFragment extends Fragment {
                 if (searchResults.getTotalPages() == null ||
                         searchResults.getResults().size() < searchResults.getTotalResults().intValue()) {
                     if (!firstSearch[0]) {
-                        searchResults.addNullToResults();
-                        movieAdapter.notifyItemInserted(searchResults.getResults().size() - 1);
+                        if (searchResults.addNullToResults())
+                            movieAdapter.notifyItemInserted(searchResults.getResults().size() - 1);
                     } else {
                         firstSearch[0] = false;
                     }
-                    MovieSearchResults results = trySearch();
-                    searchResults.addResults(results);
-
-                    Log.d(TAG, "Results added. results page = " + searchResults.getPage().intValue());
-
-                    recyclerView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            movieAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    trySearch();
+                } else {
+                    movieAdapter.setLoaded();
                 }
-                movieAdapter.setLoaded();
             }
         });
 
@@ -118,32 +107,36 @@ public class SearchFragment extends Fragment {
     }
 
     public boolean onQueryTextSubmit(String query) {
-        searchRequest = new MovieSearchAPI(query);
-        MovieSearchResults results = trySearch();
-        movieAdapter.addSearchResults(results);
-        recyclerView.smoothScrollToPosition(0);
+        if (query.length() > 0) {
+            if ((searchRequest instanceof MovieSearchAPI) &&
+                    (((MovieSearchAPI)searchRequest).getQuery().trim().equals(query.trim()))) {
+                movieAdapter.setLoaded();
+                return true;
+            }
+            searchRequest = new MovieSearchAPI(query);
+        } else {
+            if (searchRequest instanceof TopMoviesAPI) {
+                movieAdapter.setLoaded();
+                return true;
+            }
+            searchRequest = new TopMoviesAPI();
+        }
+        movieAdapter.removeSearchResults();
         movieAdapter.notifyDataSetChanged();
+        recyclerView.smoothScrollToPosition(0);
+        trySearch();
         return true;
     }
 
-    public MovieSearchResults trySearch() {
-        MovieSearchResults results = null;
-        try {
-            results = new SearchAsyncTask().execute(searchRequest).get();
-        } catch (InterruptedException | ExecutionException e) {
-            Log.e(TAG, "Search didn't succeeded", e);
-        }
-        return results;
+    public void trySearch() {
+        new SearchAsyncTask().execute(searchRequest);
     }
 
     private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> {
 
         @Override
         protected void onPreExecute() {
-            if (searchResults != null) {
-                searchResults.removeLastFromResults();
-                movieAdapter.notifyItemRemoved(searchResults.getResults().size());
-            }
+
         }
 
         @Override
@@ -155,8 +148,22 @@ public class SearchFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(MovieSearchResults searchResults) {
+        protected void onPostExecute(@Nullable MovieSearchResults searchResults) {
+            if (searchResults == null) {
+                // TODO handle case where there isn't results (progressBar still progressing)
+                return;
+            }
 
+            if (SearchFragment.this.searchResults != null) {
+                SearchFragment.this.searchResults.removeLastFromResults();
+            }
+
+            movieAdapter.addSearchResults(searchResults);
+
+            Log.d(TAG, "Results added. results page = " + searchResults.getPage().intValue());
+
+            movieAdapter.setLoaded();
+            movieAdapter.notifyDataSetChanged();
         }
     }
 }

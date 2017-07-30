@@ -20,7 +20,6 @@ public class WishlistFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
-    private MovieSearchResults wishlist;
 
     public WishlistFragment() {
         // Required empty public constructor

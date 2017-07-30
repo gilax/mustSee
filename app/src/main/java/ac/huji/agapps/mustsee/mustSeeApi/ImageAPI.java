@@ -5,7 +5,6 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.ImageableAPIElement;
 
 public class ImageAPI {
