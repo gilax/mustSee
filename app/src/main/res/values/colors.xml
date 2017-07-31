@@ -7,6 +7,6 @@
     <color name="colorTextDisable">#CADF</color>
     <color name="movie_title">#4c4c4c</color>
     <color name="colorTabIndicator">#07D</color>
-    <color name="black_x_ray">#7000</color>
+    <color name="black_x_ray">#C000</color>
     <color name="white_x_ray">#7FFF</color>
 </resources>

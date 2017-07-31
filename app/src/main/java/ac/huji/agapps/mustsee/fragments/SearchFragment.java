@@ -32,6 +32,9 @@ public class SearchFragment extends Fragment {
     @Nullable
     private MovieSearchResults searchResults;
     private SearchRequest searchRequest;
+    private SearchAsyncTask currentTask;
+
+    private boolean firstSearch = true;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -49,15 +52,14 @@ public class SearchFragment extends Fragment {
         searchRequest = new TopMoviesAPI();
         searchResults = new MovieSearchResults();
         searchResults.addNullToResults();
-        final boolean[] firstSearch = {true};
 
         // Inflate the layout for this fragment
         View fragment = inflater.inflate(R.layout.fragment_search, container, false);
         recyclerView = (RecyclerView) fragment.findViewById(R.id.recycler_movie);
 
-        int numberOfColumns = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) ? 2 : 3;
+        int numberOfColumns = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) ? 1 : 2;
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        layoutManager.setGapStrategy((numberOfColumns == 1) ? StaggeredGridLayoutManager.GAP_HANDLING_NONE : StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         recyclerView.setLayoutManager(layoutManager);
 
         movieAdapter = new MovieAdapter(recyclerView, searchResults, this);
@@ -68,11 +70,11 @@ public class SearchFragment extends Fragment {
             public void onLoadMore() {
                 if (searchResults.getTotalPages() == null ||
                         searchResults.getResults().size() < searchResults.getTotalResults().intValue()) {
-                    if (!firstSearch[0]) {
+                    if (!firstSearch) {
                         if (searchResults.addNullToResults())
                             movieAdapter.notifyItemInserted(searchResults.getResults().size() - 1);
                     } else {
-                        firstSearch[0] = false;
+                        firstSearch = false;
                     }
                     trySearch();
                 } else {
@@ -121,15 +123,22 @@ public class SearchFragment extends Fragment {
             }
             searchRequest = new TopMoviesAPI();
         }
-        movieAdapter.removeSearchResults();
-        movieAdapter.notifyDataSetChanged();
+        this.searchResults.reset();
+        this.searchResults.addNullToResults();
+        movieAdapter.resetSearchResultsState();
+        firstSearch = true;
         recyclerView.smoothScrollToPosition(0);
+        movieAdapter.notifyDataSetChanged();
         trySearch();
         return true;
     }
 
     public void trySearch() {
-        new SearchAsyncTask().execute(searchRequest);
+        if (currentTask != null) {
+            currentTask.cancel(true);
+        }
+        currentTask = new SearchAsyncTask();
+        currentTask.execute(searchRequest);
     }
 
     private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> {
@@ -141,7 +150,7 @@ public class SearchFragment extends Fragment {
 
         @Override
         protected MovieSearchResults doInBackground(SearchRequest... search) {
-            if (search.length > 0 && search[0].haveNext())
+            if (search.length > 0 && search[0].haveNext() && !isCancelled())
                 return search[0].searchNext();
             else
                 return null;

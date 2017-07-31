@@ -61,20 +61,23 @@ public class MovieSearchResults {
     }
 
     public boolean addResults(MovieSearchResults searchResults) {
-        if (searchResults != null &&
-                searchResults != this &&
-                searchResults.getTotalPages().equals(getTotalPages()) &&
+        if (searchResults == null)
+            return false;
+        if (searchResults == this)
+            return true;
+
+        // case where searchResults is one of the next pages
+        if (searchResults.getTotalPages().equals(getTotalPages()) &&
                 searchResults.getTotalResults().equals(getTotalResults())) {
             mPage = searchResults.getPage();
             return mResults.addAll(searchResults.getResults());
-        } else if (mResults.size() == 0) {
+        // case where first search of the current searchRequest
+        } else {
             this.mResults = searchResults.getResults();
             this.mPage = searchResults.getPage();
             this.mTotalPages = searchResults.getTotalPages();
             this.mTotalResults = searchResults.getTotalResults();
             return true;
-        } else {
-            return false;
         }
     }
 
@@ -93,11 +96,10 @@ public class MovieSearchResults {
         return mResults.get(mResults.size() - 1);
     }
 
-    public boolean isNull(int position) {
-        try {
-            return (mResults.get(position) == null);
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
+    public void reset() {
+        this.mResults = new ArrayList<>();
+        this.mPage = null;
+        this.mTotalResults = 1L;
+        this.mTotalPages = null;
     }
 }

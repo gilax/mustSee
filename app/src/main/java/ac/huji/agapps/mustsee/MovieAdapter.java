@@ -29,7 +29,6 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private final int VIEW_TYPE_MOVIE = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private final int VIEW_TYPE_UNKNOWN = 2;
 
     private Fragment fragment;
     @Nullable
@@ -50,6 +49,8 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         TextView title;
         FloatingActionButton mainFunction;
         TextView overflow;
+        TextView resultNumber;
+        TextView rating;
 
 
         MovieViewHolder(View itemView) {
@@ -58,6 +59,12 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             poster = (ImageView) itemView.findViewById(R.id.movie_poster);
             mainFunction = (FloatingActionButton) itemView.findViewById(R.id.movie_card_button);
             overflow = (TextView) itemView.findViewById(R.id.overflow);
+            resultNumber = (TextView) itemView.findViewById(R.id.result_number);
+            rating = (TextView) itemView.findViewById(R.id.movie_rating);
+        }
+
+        void addRate(Double voteAverage) {
+            rating.setText(String.format(rating.getContext().getString(R.string.rating_title), (double)voteAverage));
         }
     }
 
@@ -140,6 +147,9 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
             ImageAPI.putPosterToView(fragment.getContext(), movie, movieHolder.poster);
             movieHolder.title.setText(movie.getTitle());
+            movieHolder.resultNumber.setText(String.valueOf(position + 1));
+            movieHolder.addRate(movie.getVoteAverage());
+
             movieHolder.overflow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -154,11 +164,8 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        if (searchResults == null || searchResults.getLastResult() == null)
-            if (!(searchResults.isNull(position - 1)))
-                return VIEW_TYPE_LOADING;
-            else
-                return VIEW_TYPE_UNKNOWN;
+        if (searchResults == null || searchResults.getResults().get(position) == null)
+            return VIEW_TYPE_LOADING;
         else
             return VIEW_TYPE_MOVIE;
     }
@@ -199,9 +206,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return this.searchResults.addResults(searchResults);
     }
 
-    public void removeSearchResults() {
-        this.searchResults = new MovieSearchResults();
-        this.searchResults.addNullToResults();
+    public void resetSearchResultsState() {
         this.isLoading = true;
         this.previousTotalItemCount = 0;
     }
