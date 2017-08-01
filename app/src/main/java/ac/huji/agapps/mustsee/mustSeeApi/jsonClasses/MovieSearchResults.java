@@ -1,13 +1,14 @@
 
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
-public class MovieSearchResults {
+public class MovieSearchResults implements Serializable{
 
     @SerializedName("page")
     private Long mPage;

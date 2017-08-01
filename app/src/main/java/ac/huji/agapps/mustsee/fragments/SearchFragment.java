@@ -15,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.Serializable;
+
 import ac.huji.agapps.mustsee.MovieAdapter;
 import ac.huji.agapps.mustsee.OnLoadMoreListener;
 import ac.huji.agapps.mustsee.R;
@@ -25,6 +27,9 @@ import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
 public class SearchFragment extends Fragment {
 
+    private static final String SEARCH_RESULTS_KEY = "SearchResults";
+    private static final String SEARCH_REQUEST_KEY = "SearchRequest";
+    private static final String CURRENT_SEARCH_ASYNC_TASK_KEY = "CurrentTask";
     private final String TAG = "SEARCH FRAGMENT";
 
     private RecyclerView recyclerView;
@@ -46,12 +51,41 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(SEARCH_RESULTS_KEY, searchResults);
+        outState.putSerializable(SEARCH_REQUEST_KEY, searchRequest);
+        outState.putSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY, currentTask);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        searchRequest = new TopMoviesAPI();
-        searchResults = new MovieSearchResults();
-        searchResults.addNullToResults();
+        if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_REQUEST_KEY) != null) {
+            searchRequest = (SearchRequest) savedInstanceState.getSerializable(SEARCH_REQUEST_KEY);
+        } else {
+            searchRequest = new TopMoviesAPI();
+        }
+
+        if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_RESULTS_KEY) != null) {
+            searchResults = (MovieSearchResults) savedInstanceState.getSerializable(SEARCH_RESULTS_KEY);
+        } else {
+            searchResults = new MovieSearchResults();
+        }
+
+        boolean isSearching = false;
+        if (savedInstanceState != null && savedInstanceState.getSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY) != null) {
+            // while searching
+            currentTask = (SearchAsyncTask) savedInstanceState.getSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY);
+            if (currentTask.getStatus() == AsyncTask.Status.FINISHED) {
+                currentTask = null;
+            }
+            isSearching = true;
+        } else {
+            // not searching
+            searchResults.addNullToResults();
+        }
 
         // Inflate the layout for this fragment
         View fragment = inflater.inflate(R.layout.fragment_search, container, false);
@@ -64,6 +98,10 @@ public class SearchFragment extends Fragment {
 
         movieAdapter = new MovieAdapter(recyclerView, searchResults, this);
         recyclerView.setAdapter(movieAdapter);
+
+        if (isSearching && searchResults.getLastResult() != null) {
+            movieAdapter.setLoaded();
+        }
 
         movieAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
@@ -123,6 +161,7 @@ public class SearchFragment extends Fragment {
             }
             searchRequest = new TopMoviesAPI();
         }
+        assert searchResults != null;
         this.searchResults.reset();
         this.searchResults.addNullToResults();
         movieAdapter.resetSearchResultsState();
@@ -141,7 +180,7 @@ public class SearchFragment extends Fragment {
         currentTask.execute(searchRequest);
     }
 
-    private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> {
+    private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> implements Serializable {
 
         @Override
         protected void onPreExecute() {
@@ -159,7 +198,8 @@ public class SearchFragment extends Fragment {
         @Override
         protected void onPostExecute(@Nullable MovieSearchResults searchResults) {
             if (searchResults == null) {
-                // TODO handle case where there isn't results (progressBar still progressing)
+                // TODO handle case where there isn't results
+                movieAdapter.setLoaded();
                 return;
             }
 
@@ -173,6 +213,7 @@ public class SearchFragment extends Fragment {
 
             movieAdapter.setLoaded();
             movieAdapter.notifyDataSetChanged();
+            currentTask = null;
         }
     }
 }

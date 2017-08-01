@@ -3,6 +3,7 @@ package ac.huji.agapps.mustsee;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -27,6 +28,9 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private static final String TAG = "MOVIE ADAPTER";
 
+    private static final int FIRST_COLOR = 0;
+    private static final int SECOND_COLOR = 1;
+
     private final int VIEW_TYPE_MOVIE = 0;
     private final int VIEW_TYPE_LOADING = 1;
 
@@ -49,22 +53,33 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         TextView title;
         FloatingActionButton mainFunction;
         TextView overflow;
-        TextView resultNumber;
         TextView rating;
+        CardView card;
 
 
         MovieViewHolder(View itemView) {
             super(itemView);
+            card = (CardView) itemView.findViewById(R.id.movie_card);
             title = (TextView) itemView.findViewById(R.id.movie_title);
             poster = (ImageView) itemView.findViewById(R.id.movie_poster);
             mainFunction = (FloatingActionButton) itemView.findViewById(R.id.movie_card_button);
             overflow = (TextView) itemView.findViewById(R.id.overflow);
-            resultNumber = (TextView) itemView.findViewById(R.id.result_number);
             rating = (TextView) itemView.findViewById(R.id.movie_rating);
         }
 
         void addRate(Double voteAverage) {
             rating.setText(String.format(rating.getContext().getString(R.string.rating_title), (double)voteAverage));
+        }
+
+        void setCardColor(int color) {
+            switch (color) {
+                case FIRST_COLOR:
+                    card.setCardBackgroundColor(card.getContext().getResources().getColor(R.color.cardview_first_background));
+                    break;
+                case SECOND_COLOR:
+                    card.setCardBackgroundColor(card.getContext().getResources().getColor(R.color.cardview_second_background));
+                    break;
+            }
         }
     }
 
@@ -147,8 +162,13 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
             ImageAPI.putPosterToView(fragment.getContext(), movie, movieHolder.poster);
             movieHolder.title.setText(movie.getTitle());
-            movieHolder.resultNumber.setText(String.valueOf(position + 1));
             movieHolder.addRate(movie.getVoteAverage());
+
+            if (position % 2 == 0) {
+                movieHolder.setCardColor(FIRST_COLOR);
+            } else {
+                movieHolder.setCardColor(SECOND_COLOR);
+            }
 
             movieHolder.overflow.setOnClickListener(new View.OnClickListener() {
                 @Override

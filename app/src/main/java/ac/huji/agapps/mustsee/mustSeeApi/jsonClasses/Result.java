@@ -1,13 +1,14 @@
 
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
-public class Result implements ImageableAPIElement {
+public class Result implements ImageableAPIElement, Serializable {
 
     @SerializedName("adult")
     private Boolean mAdult;

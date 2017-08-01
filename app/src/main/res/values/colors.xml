@@ -7,6 +7,8 @@
     <color name="colorTextDisable">#CADF</color>
     <color name="movie_title">#4c4c4c</color>
     <color name="colorTabIndicator">#07D</color>
-    <color name="black_x_ray">#C000</color>
-    <color name="white_x_ray">#7FFF</color>
+    <color name="black_x_ray">#A000</color>
+    <color name="white_x_ray">#9FFF</color>
+    <color name="cardview_first_background">#ffeeeeee</color>
+    <color name="cardview_second_background">#ffffffff</color>
 </resources>

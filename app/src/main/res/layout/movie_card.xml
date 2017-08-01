@@ -26,7 +26,7 @@
                 android:clickable="true"
                 android:contentDescription="@string/poster_description"
                 android:layout_marginLeft="2dp"
-                app:layout_constraintLeft_toRightOf="@+id/result_number"
+                app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
@@ -36,17 +36,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="@+id/movie_poster"
                 android:id="@+id/right_of_poster"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/result_number"
-                android:textColor="@color/movie_title"
-                android:layout_marginTop="2dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:layout_width="0dp"
@@ -82,12 +71,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|right"
                 android:layout_margin="@dimen/fab_margin"
-                android:src="@android:drawable/ic_menu_add"
-                android:tint="@color/black_x_ray"
-                app:backgroundTint="@color/white_x_ray"
-                android:alpha="0.75"
-                app:backgroundTintMode="src_in"
-
+                android:src="@drawable/ic_add_black_24dp"
+                app:backgroundTint="@android:color/white"
+                android:alpha="0.6"
+                app:backgroundTintMode="src_over"
+                android:scaleType="center"
                 app:layout_constraintLeft_toLeftOf="@+id/right_of_poster"
                 app:layout_constraintRight_toRightOf="@+id/right_of_poster"
                 app:layout_constraintTop_toTopOf="@+id/movie_poster"
