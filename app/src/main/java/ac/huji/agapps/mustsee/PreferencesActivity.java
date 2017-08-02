@@ -42,9 +42,9 @@ import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 
 public class PreferencesActivity extends AppCompatActivity implements  View.OnClickListener{
 
+    private GoogleApiClient mGoogleApiClient;
     private SignInButton mGoogleButton; //google sign in button
     private static final int RC_SIGN_IN = 1;
-    private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth mAuth;
     private static final String TAG = "MAIN_ACTIVITY";
     private ProgressDialog progressDialog;
@@ -113,6 +113,25 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //        resetFavoriteGenres();
         getFavGenres();
         displayListView();
+//        checlLogOutIntent(getIntent());
+
+    }
+
+    /**
+     * If user pressed "log out", we want to move to this activity but log out right away
+     * @param intent
+     * @return true if we indeed receive a disconnect request, false otherwise
+     */
+    protected boolean checlLogOutIntent(Intent intent) {
+
+        if(intent == null || intent.getStringExtra(getString(R.string.intentMethod)) == null)
+            return false;
+
+        if(intent.getStringExtra(getString(R.string.intentMethod)).equals(getString(R.string.log_out))){
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -134,11 +153,11 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
         genres = new Gson().fromJson(sharedPref.getString(getString(R.string.userGenres), ""), Genres.class);
+
     }
 
     private void saveGenres() {
-                SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
-                Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
         Gson gson = new Gson();
@@ -151,10 +170,26 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 
         editor.apply();
     }
+
+    private void saveUserName(String userName) {
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_username), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.userName), userName);
+        editor.apply();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        //if we are connected and we got a disconnect request, disconnect
+        if(currentUser != null && checlLogOutIntent(getIntent()))
+        {
+            mAuth.signOut();
+            currentUser = null;
+        }
+
         updateUI(currentUser);
     }
 
@@ -214,7 +249,11 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+
+                            saveUserName(user.getDisplayName());
+                            startMain();
+
+//                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -225,6 +264,11 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                         // ...
                     }
                 });
+    }
+
+    private void startMain() {
+        Intent myIntent = new Intent(PreferencesActivity.this, MainActivity.class);
+        PreferencesActivity.this.startActivity(myIntent);
     }
 
     /**
@@ -238,7 +282,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
             mStatusBar.setText("user: " + user.getDisplayName());
             mGoogleButton.setVisibility(View.GONE);
             mLogOutButton.setVisibility(View.VISIBLE);
-            mLogOutButton.setText(user.getDisplayName());
+            mLogOutButton.setText(R.string.log_out);
         } else {
             //user logged out, set log out button invisible
             mStatusBar.setText("user: Disconnected");
@@ -258,6 +302,8 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
             //the difference as in both ifs they did the same thing
         }
     }
+
+
 
     /**
      * displays the listview of favorite genres

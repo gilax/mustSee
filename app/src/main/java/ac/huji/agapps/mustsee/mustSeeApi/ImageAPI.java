@@ -25,5 +25,8 @@ public class ImageAPI {
                 .centerCrop()
                 .error(android.R.drawable.ic_delete)
                 .into(imageView);
+
+
     }
+
 }
