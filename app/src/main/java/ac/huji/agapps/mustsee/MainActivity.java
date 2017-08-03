@@ -17,6 +17,10 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
 import ac.huji.agapps.mustsee.fragments.AlreadyWatchedFragment;
@@ -33,12 +37,18 @@ public class MainActivity extends AppCompatActivity {
     WishlistFragment wishlistFragment;
     AlreadyWatchedFragment alreadyWatchedFragment;
 
+    private GoogleApiClient mGoogleApiClient;
+    private FirebaseUser user;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //FirebaseUser, contains unique id, name, photo, etc about the user.
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(3);
@@ -72,6 +82,22 @@ public class MainActivity extends AppCompatActivity {
         getUserName();
     }
 
+
+    @Override
+    protected void onStart() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        mGoogleApiClient.connect();
+
+        Toast.makeText(MainActivity.this, user.getDisplayName(), Toast.LENGTH_LONG).show();
+
+        super.onStart();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -92,21 +118,38 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        Intent myIntent;
         switch (item.getItemId()) {
             case R.id.action_settings:
-                myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
+                Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
                 startActivity(myIntent);
                 return true;
             case R.id.action_log_out:
-                myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
-                myIntent.putExtra(getString(R.string.intentMethod), getString(R.string.log_out));
-                MainActivity.this.startActivity(myIntent);
+
+
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if(user != null){
+
+                FirebaseAuth.getInstance().signOut();
+                    // Google sign out
+                    Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                            new ResultCallback<Status>() {
+                                @Override
+                                public void onResult(Status status) {
+
+                                Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
+                                MainActivity.this.startActivity(myIntent);
+                                }
+                            });
+                }
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
+
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());

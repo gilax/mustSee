@@ -62,16 +62,13 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
-
 //        todo :need to take from DB instead from API
 //        todo: uncomment this, it didn't work for me for some reason so I manually put a list of genres later on
 //        genreAPI = new MovieGenresAPI();
 //        genres = genreAPI.getGenres();
 
         progressDialog = new ProgressDialog(this);
-
         mStatusBar = (TextView) findViewById(R.id.statusBar);
-
         mLogOutButton = (Button) findViewById(R.id.logOut);
 
         mLogOutButton.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +79,8 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         });
 
         mAuth = FirebaseAuth.getInstance();
+
+
 
         mGoogleButton = (SignInButton) findViewById(R.id.google_button);
 
@@ -97,6 +96,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
                         Toast.makeText(PreferencesActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
                     }
+
                 }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
 
         mGoogleButton.setOnClickListener(new View.OnClickListener() {
@@ -113,26 +113,10 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //        resetFavoriteGenres();
         getFavGenres();
         displayListView();
-//        checlLogOutIntent(getIntent());
+//        checkLogOutIntent(getIntent());
 
     }
 
-    /**
-     * If user pressed "log out", we want to move to this activity but log out right away
-     * @param intent
-     * @return true if we indeed receive a disconnect request, false otherwise
-     */
-    protected boolean checlLogOutIntent(Intent intent) {
-
-        if(intent == null || intent.getStringExtra(getString(R.string.intentMethod)) == null)
-            return false;
-
-        if(intent.getStringExtra(getString(R.string.intentMethod)).equals(getString(R.string.log_out))){
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * used to reset sharedPreferences for debugging
@@ -182,14 +166,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        //if we are connected and we got a disconnect request, disconnect
-        if(currentUser != null && checlLogOutIntent(getIntent()))
-        {
-            mAuth.signOut();
-            currentUser = null;
-        }
-
         updateUI(currentUser);
     }
 
@@ -226,6 +202,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                 firebaseAuthWithGoogle(account);
             } else {
                 updateUI(null);
+
                 // Google Sign In failed, update UI appropriately
                 // ...
             }
@@ -249,6 +226,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+
 
                             saveUserName(user.getDisplayName());
                             startMain();
