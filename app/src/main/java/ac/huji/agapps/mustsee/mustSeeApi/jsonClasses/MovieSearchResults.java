@@ -93,7 +93,7 @@ public class MovieSearchResults implements Serializable{
         return mResults.remove(mResults.size() - 1);
     }
 
-    public Result getLastResult() {
+    public Result lastResult() {
         return mResults.get(mResults.size() - 1);
     }
 

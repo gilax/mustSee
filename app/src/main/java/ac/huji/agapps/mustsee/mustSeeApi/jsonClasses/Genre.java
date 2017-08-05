@@ -6,9 +6,11 @@ import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
-public class Genre {
+public class Genre implements Serializable {
 
     //todo remove constructor later:
     public Genre(long id, String name)

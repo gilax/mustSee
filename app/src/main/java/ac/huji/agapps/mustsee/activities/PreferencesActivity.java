@@ -1,4 +1,4 @@
-package ac.huji.agapps.mustsee;
+package ac.huji.agapps.mustsee.activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ac.huji.agapps.mustsee.adapters.GenresAdapter;
+import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieGenresAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
@@ -50,7 +52,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private ProgressDialog progressDialog;
     private Button mLogOutButton; // log out buton
     private TextView mStatusBar; //status of who's online
-
 
     //api genres:
     private ListView listView;
@@ -79,9 +80,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         });
 
         mAuth = FirebaseAuth.getInstance();
-
-
-
         mGoogleButton = (SignInButton) findViewById(R.id.google_button);
 
         // Configure Google Sign In
@@ -96,7 +94,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
                         Toast.makeText(PreferencesActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
                     }
-
                 }).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
 
         mGoogleButton.setOnClickListener(new View.OnClickListener() {
@@ -105,7 +102,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                 signIn();
                 //save genres in sharedPrefences
                 saveGenres();
-//
             }
         });
 
@@ -114,9 +110,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         getFavGenres();
         displayListView();
 //        checkLogOutIntent(getIntent());
-
     }
-
 
     /**
      * used to reset sharedPreferences for debugging
@@ -227,7 +221,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
-
                             saveUserName(user.getDisplayName());
                             startMain();
 
@@ -280,8 +273,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
             //the difference as in both ifs they did the same thing
         }
     }
-
-
 
     /**
      * displays the listview of favorite genres

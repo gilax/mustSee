@@ -1,7 +1,5 @@
 package ac.huji.agapps.mustsee.fragments;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -11,10 +9,8 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import ac.huji.agapps.mustsee.MovieAdapter;
-import ac.huji.agapps.mustsee.MovieDataBase;
+import ac.huji.agapps.mustsee.adapters.MovieAdapter;
 import ac.huji.agapps.mustsee.R;
-import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
 public class WishlistFragment extends Fragment {
 

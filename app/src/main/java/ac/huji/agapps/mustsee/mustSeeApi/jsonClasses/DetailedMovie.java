@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Generated;
 
@@ -346,7 +347,31 @@ public class DetailedMovie implements ImageableAPIElement {
                 "}";
     }
 
-    public YouTubePlayerView getTrailerPlayer(Activity activity) {
+    public Result reduceToResult() {
+        Result reduced = new Result();
+        reduced.setAdult(mAdult);
+        reduced.setBackdropPath(mBackdropPath);
+        List<Long> genreIds = new ArrayList<>(mGenres.size());
+        for (Genre genre : mGenres) {
+            genreIds.add(genre.getId());
+        }
+        reduced.setGenreIds(genreIds);
+        reduced.setId(mId);
+        reduced.setOriginalLanguage(mOriginalLanguage);
+        reduced.setOriginalTitle(mOriginalTitle);
+        reduced.setOverview(mOverview);
+        reduced.setPopularity(mPopularity);
+        reduced.setPosterPath(mPosterPath);
+        reduced.setReleaseDate(mReleaseDate);
+        reduced.setTitle(mTitle);
+        reduced.setVideo(mVideo);
+        reduced.setVoteAverage(mVoteAverage);
+        reduced.setVoteCount(mVoteCount);
+
+        return reduced;
+    }
+
+    public YouTubePlayerView attachTrailerPlayer(Activity activity) {
         YouTubePlayerView playerView = (YouTubePlayerView) activity.findViewById(R.id.trailer_video_player);
         if (this.getVideo()) {
             playerView.setVisibility(View.VISIBLE);

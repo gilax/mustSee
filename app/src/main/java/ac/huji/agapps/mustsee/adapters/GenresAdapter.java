@@ -1,4 +1,4 @@
-package ac.huji.agapps.mustsee;
+package ac.huji.agapps.mustsee.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 

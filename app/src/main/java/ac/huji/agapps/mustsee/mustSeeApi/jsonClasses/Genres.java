@@ -1,6 +1,7 @@
 
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Generated;
@@ -10,7 +11,7 @@ import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
-public class Genres {
+public class Genres implements Serializable{
     @Expose
     @SerializedName("genres")
     private List<Genre> mGenres;

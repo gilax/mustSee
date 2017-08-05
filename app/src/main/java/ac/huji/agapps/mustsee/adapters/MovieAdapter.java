@@ -1,4 +1,4 @@
-package ac.huji.agapps.mustsee;
+package ac.huji.agapps.mustsee.adapters;
 
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +19,8 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 
+import ac.huji.agapps.mustsee.R;
+import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
@@ -86,7 +88,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     /**
      * View holder when loading a new page of results.
      * When (searchResults.size() == 0 and searchResults.getTotalResults == null)
-     * or (searchResults.getLastResult() == null) this element will be in the recyclerView
+     * or (searchResults.lastResult() == null) this element will be in the recyclerView
      */
     private class LoadingViewHolder extends RecyclerView.ViewHolder {
         ProgressBar progressBar;
@@ -158,7 +160,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MovieViewHolder) {
             assert searchResults != null;
-            Result movie = searchResults.getResults().get(position);
+            final Result movie = searchResults.getResults().get(position);
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
             ImageAPI.putPosterToView(fragment.getContext(), movie, movieHolder.poster);
             movieHolder.title.setText(movie.getTitle());
@@ -173,7 +175,14 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             movieHolder.overflow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showPopupMenu(movieHolder.overflow);
+                    showPopupMenu(movieHolder.overflow, movie);
+                }
+            });
+
+            movieHolder.mainFunction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addMovieToMustSeeList(movie);
                 }
             });
         } else if (holder instanceof LoadingViewHolder) {
@@ -190,7 +199,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return VIEW_TYPE_MOVIE;
     }
 
-    private void showPopupMenu(View view) {
+    private void showPopupMenu(View view, final Result movie) {
         PopupMenu menu = new PopupMenu(fragment.getContext(), view);
         MenuInflater inflater = menu.getMenuInflater();
         inflater.inflate(R.menu.menu_movie_card, menu.getMenu());
@@ -199,7 +208,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.add_to_wishlist:
-                        // TODO auto generate
+                        addMovieToMustSeeList(movie);
                         return true;
                     default:
                         return false;
@@ -229,5 +238,13 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void resetSearchResultsState() {
         this.isLoading = true;
         this.previousTotalItemCount = 0;
+    }
+
+    public interface OnLoadMoreListener {
+        void onLoadMore();
+    }
+
+    private void addMovieToMustSeeList(Result movie) {
+        MainActivity.dataBase.writeMovieForUser(movie);
     }
 }

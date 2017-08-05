@@ -17,8 +17,7 @@ import android.view.ViewGroup;
 
 import java.io.Serializable;
 
-import ac.huji.agapps.mustsee.MovieAdapter;
-import ac.huji.agapps.mustsee.OnLoadMoreListener;
+import ac.huji.agapps.mustsee.adapters.MovieAdapter;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
@@ -99,11 +98,11 @@ public class SearchFragment extends Fragment {
         movieAdapter = new MovieAdapter(recyclerView, searchResults, this);
         recyclerView.setAdapter(movieAdapter);
 
-        if (isSearching && searchResults.getLastResult() != null) {
+        if (isSearching && searchResults.lastResult() != null) {
             movieAdapter.setLoaded();
         }
 
-        movieAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+        movieAdapter.setOnLoadMoreListener(new MovieAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 if (searchResults.getTotalPages() == null ||
