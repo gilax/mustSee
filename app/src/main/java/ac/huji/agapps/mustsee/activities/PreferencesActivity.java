@@ -52,6 +52,8 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private ProgressDialog progressDialog;
     private Button mLogOutButton; // log out buton
     private TextView mStatusBar; //status of who's online
+    private FirebaseUser user;
+
 
     //api genres:
     private ListView listView;
@@ -67,6 +69,15 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //        todo: uncomment this, it didn't work for me for some reason so I manually put a list of genres later on
 //        genreAPI = new MovieGenresAPI();
 //        genres = genreAPI.getGenres();
+
+        //FirebaseUser, contains unique id, name, photo, etc about the user.
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        //if we're logged in and this is the first time running PreferencesActivity, go to Main
+        if(user != null && getIntent().getStringExtra(getString(R.string.disable_auto_transfer)) == null)
+            startMain();
+
+
 
         progressDialog = new ProgressDialog(this);
         mStatusBar = (TextView) findViewById(R.id.statusBar);
@@ -110,6 +121,13 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         getFavGenres();
         displayListView();
 //        checkLogOutIntent(getIntent());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
     /**
@@ -156,12 +174,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         editor.apply();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
+
 
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
@@ -237,9 +250,15 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                 });
     }
 
+    /**
+     * Start main activity
+     */
     private void startMain() {
         Intent myIntent = new Intent(PreferencesActivity.this, MainActivity.class);
         PreferencesActivity.this.startActivity(myIntent);
+
+        //remove this activity from the activity stack, we don't wanna be able to press 'back' into it
+        finish();
     }
 
     /**

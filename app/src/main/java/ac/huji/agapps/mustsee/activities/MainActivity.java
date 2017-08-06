@@ -50,10 +50,6 @@ public class MainActivity extends AppCompatActivity {
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        //if user is disconnected, abort further initialization
-        if(checkIfDisconnected(user))
-            return;
-
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(3);
 
@@ -95,8 +91,6 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleApiClient.connect();
 
-//        Toast.makeText(MainActivity.this, user.getDisplayName(), Toast.LENGTH_LONG).show();
-
         super.onStart();
     }
 
@@ -117,28 +111,20 @@ public class MainActivity extends AppCompatActivity {
         return userName;
     }
 
-    /**
-     * checks if user is online, if not starts preferences activity and returns true
-     * @param user, user object, checks if null
-     * @return true if user is disconnected, false otherwise
-     */
-    private boolean checkIfDisconnected(FirebaseUser user)
-    {
-        if(user == null)
-        {
-            Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
-            MainActivity.this.startActivity(myIntent);
-            return true;
-        }
-        return false;
-    }
 
+    /*
+    buttons in the menu
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
+
+                /*inform the pref activity to not automatically transfer us to main activity
+                just because we're logged in*/
+                myIntent.putExtra(getString(R.string.disable_auto_transfer), "true");
                 startActivity(myIntent);
                 return true;
 
@@ -153,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
                                 public void onResult(Status status) {
                                 Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
                                 MainActivity.this.startActivity(myIntent);
+                                //finish(), can't go back to the main page once you log out
+                                finish();
                                 }
                             });
                 }
