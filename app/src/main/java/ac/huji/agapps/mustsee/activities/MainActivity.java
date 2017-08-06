@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
 
+        //if user is disconnected, abort further initialization
+        if(checkIfDisconnected(user))
+            return;
+
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(3);
 
@@ -113,6 +117,22 @@ public class MainActivity extends AppCompatActivity {
         return userName;
     }
 
+    /**
+     * checks if user is online, if not starts preferences activity and returns true
+     * @param user, user object, checks if null
+     * @return true if user is disconnected, false otherwise
+     */
+    private boolean checkIfDisconnected(FirebaseUser user)
+    {
+        if(user == null)
+        {
+            Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
+            MainActivity.this.startActivity(myIntent);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
@@ -131,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
                             new ResultCallback<Status>() {
                                 @Override
                                 public void onResult(Status status) {
-
                                 Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
                                 MainActivity.this.startActivity(myIntent);
                                 }
@@ -157,4 +176,5 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager.setAdapter(adapter);
     }
+
 }
