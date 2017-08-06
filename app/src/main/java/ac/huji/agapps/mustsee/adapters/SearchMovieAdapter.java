@@ -26,7 +26,7 @@ import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 
 
-public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "MOVIE ADAPTER";
 
@@ -99,7 +99,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    public MovieAdapter(RecyclerView recyclerView, @Nullable MovieSearchResults results, Fragment fragment) {
+    public SearchMovieAdapter(RecyclerView recyclerView, @Nullable MovieSearchResults results, Fragment fragment) {
         this.fragment = fragment;
         this.searchResults = results;
 
@@ -245,6 +245,6 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     private void addMovieToMustSeeList(Result movie) {
-        MainActivity.dataBase.writeMovieForUser(movie);
+        MainActivity.dataBase.writeMovieToMustSeeListForUser(movie);
     }
 }

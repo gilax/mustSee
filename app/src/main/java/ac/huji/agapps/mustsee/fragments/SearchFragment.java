@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 
 import java.io.Serializable;
 
-import ac.huji.agapps.mustsee.adapters.MovieAdapter;
+import ac.huji.agapps.mustsee.adapters.SearchMovieAdapter;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
@@ -32,7 +32,7 @@ public class SearchFragment extends Fragment {
     private final String TAG = "SEARCH FRAGMENT";
 
     private RecyclerView recyclerView;
-    private MovieAdapter movieAdapter;
+    private SearchMovieAdapter movieAdapter;
     @Nullable
     private MovieSearchResults searchResults;
     private SearchRequest searchRequest;
@@ -95,14 +95,14 @@ public class SearchFragment extends Fragment {
         layoutManager.setGapStrategy((numberOfColumns == 1) ? StaggeredGridLayoutManager.GAP_HANDLING_NONE : StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         recyclerView.setLayoutManager(layoutManager);
 
-        movieAdapter = new MovieAdapter(recyclerView, searchResults, this);
+        movieAdapter = new SearchMovieAdapter(recyclerView, searchResults, this);
         recyclerView.setAdapter(movieAdapter);
 
         if (isSearching && searchResults.lastResult() != null) {
             movieAdapter.setLoaded();
         }
 
-        movieAdapter.setOnLoadMoreListener(new MovieAdapter.OnLoadMoreListener() {
+        movieAdapter.setOnLoadMoreListener(new SearchMovieAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 if (searchResults.getTotalPages() == null ||

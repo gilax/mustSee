@@ -54,7 +54,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private TextView mStatusBar; //status of who's online
     private FirebaseUser user;
 
-
     //api genres:
     private ListView listView;
     private MovieGenresAPI genreAPI;
@@ -76,8 +75,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         //if we're logged in and this is the first time running PreferencesActivity, go to Main
         if(user != null && getIntent().getStringExtra(getString(R.string.disable_auto_transfer)) == null)
             startMain();
-
-
 
         progressDialog = new ProgressDialog(this);
         mStatusBar = (TextView) findViewById(R.id.statusBar);

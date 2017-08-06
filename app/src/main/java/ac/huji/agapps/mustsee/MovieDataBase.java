@@ -1,5 +1,6 @@
 package ac.huji.agapps.mustsee;
 
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -11,6 +12,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ac.huji.agapps.mustsee.mustSeeApi.MovieDetailsAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
@@ -24,6 +29,8 @@ public class MovieDataBase {
     private static final String TOP_MOVIES = "topMovies";
     private static final String DETAILED_MOVIES = "detailedMovies";
     private static final String USERS = "users";
+    private static final String MUST_SEE_LIST = "mustSeeList";
+    private static final String ALREADY_WATCHED = "alreadyWatchedList";
 
     private DatabaseReference genresRef;
     private DatabaseReference topMoviesRef;
@@ -39,6 +46,8 @@ public class MovieDataBase {
         usersRef = firebase.getReference(USERS);
         detailedMoviesRef = firebase.getReference(DETAILED_MOVIES);
     }
+
+    /* Genres */
 
     public void writeGenres(Genres genres) {
         genresRef.setValue(genres);
@@ -60,6 +69,8 @@ public class MovieDataBase {
         });
     }
 
+    /* Top Movies */
+
     public void writeTopMovies(MovieSearchResults searchResults) {
         topMoviesRef.setValue(searchResults);
     }
@@ -80,62 +91,151 @@ public class MovieDataBase {
         });
     }
 
-    public void writeMovieForUser(Result movie) {
+    /* Must See List */
+
+    public void writeMovieToMustSeeListForUser(Result movie) {
         int movieId = movie.getId().intValue();
         String userKey = getUserKey();
 
         // check if "movie" already in user mustSee list
         if (userKey != null) {
             // if not - add it
-            usersRef.child(userKey).child(String.valueOf(movieId)).setValue(movie);
+            usersRef.child(userKey).child(MUST_SEE_LIST).child(String.valueOf(movieId)).setValue(movie);
 
-            // check if "detailed_movie" contains id
-            if (!isDetailedMovieContains(movieId)) {
-                // if not - add it by id
-                writeDetailedMovie(movieId);
-            }
+            // add the movie in "detailed_movie"
+            writeDetailedMovie(movieId);
         }
     }
 
-    public void writeMovieForUser(DetailedMovie movie) {
+    public void writeMovieToMustSeeListForUser(DetailedMovie movie) {
         int movieId = movie.getId().intValue();
         String userKey = getUserKey();
 
         // check if "movie" already in user mustSee list
-        if (userKey != null && !isUserListContains(movieId)) {
+        if (userKey != null) {
             // if not - add it (reduced to Result)
-            usersRef.child(userKey).setValue(movieId);
-            usersRef.child(userKey).child(String.valueOf(movieId)).setValue(movie.reduceToResult());
+            usersRef.child(userKey).child(MUST_SEE_LIST).child(String.valueOf(movieId)).setValue(movie.reduceToResult());
 
-            // check if "detailed_movie" contains id
-            if (!isDetailedMovieContains(movieId)) {
-                // if not - add it by id
-                writeDetailedMovie(movie);
-            }
+            // add the movie in "detailed_movie"
+            writeDetailedMovie(movie);
         }
     }
+
+    public void readMovieFromMustSeeListForUser(final OnResultsLoadedListener onResultLoadedListener) {
+        String userKey = getUserKey();
+
+        if (userKey != null) {
+            usersRef.child(userKey).child(MUST_SEE_LIST).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "Must See list is reading...");
+                    List<Result> mustSeeList = new ArrayList<Result>();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        mustSeeList.add(data.getValue(Result.class));
+                    }
+                    onResultLoadedListener.onResultsLoaded(mustSeeList);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "Must See list reading canceled");
+                }
+            });
+        }
+    }
+
+    public void deleteMovieFromMustSeeListForUser(int movieId) {
+        String userKey = getUserKey();
+
+        if (userKey != null) {
+            usersRef.child(userKey).child(MUST_SEE_LIST).child(String.valueOf(movieId)).removeValue();
+        }
+    }
+
+    public void deleteAllMustSeeListForUser() {
+        String userKey = getUserKey();
+
+        if (userKey != null) {
+            usersRef.child(userKey).child(MUST_SEE_LIST).removeValue();
+        }
+    }
+
+    /* Detailed Movie */
 
     public void writeDetailedMovie(DetailedMovie detailedMovie) {
         int movieId = detailedMovie.getId().intValue();
         detailedMoviesRef.child(String.valueOf(movieId)).setValue(detailedMovie);
     }
 
-    public void writeDetailedMovie(int movieId) {
-        // TODO auto generated
+    public void readDetailedMovie(final int movieId, final OnDetailedMovieLoadedListener onDetailedMovieLoadedListener) {
+        detailedMoviesRef.child(String.valueOf(movieId)).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Detailed movie " + movieId + " is reading...");
+                DetailedMovie movie = dataSnapshot.getValue(DetailedMovie.class);
+                onDetailedMovieLoadedListener.onDetailedMovieLoaded(movie);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Detailed movie " + movieId + " reading canceled");
+            }
+        });
     }
 
-    public boolean isDetailedMovieContains(int movieId) {
-        // TODO auto generated
-        return false;
+    /* Already Watched List */
+
+    public void writeMovieToAlreadyWatchedListForUser(Result movie) {
+        int movieId = movie.getId().intValue();
+        String userKey = getUserKey();
+
+        // check if "movie" already in user AlreadyWatched list
+        if (userKey != null) {
+            // if not - add it
+            usersRef.child(userKey).child(ALREADY_WATCHED).child(String.valueOf(movieId)).setValue(movie);
+        }
     }
 
-    public boolean isUserListContains(int movieId) {
-        // TODO auto generated
-        return false;
+    public void writeMovieToAlreadyWatchedListForUser(DetailedMovie movie) {
+        int movieId = movie.getId().intValue();
+        String userKey = getUserKey();
+
+        // check if "movie" already in user mustSee list
+        if (userKey != null) {
+            // if not - add it (reduced to Result)
+            usersRef.child(userKey).child(ALREADY_WATCHED).child(String.valueOf(movieId)).setValue(movie.reduceToResult());
+        }
     }
 
-    public void readDetailedMovieById(final int id, final OnDetailedMovieLoadedListener onDetailedMovieLoadedListener) {
+    public void readMovieFromAlreadyWatchedListForUser(final OnResultsLoadedListener onResultLoadedListener) {
+        String userKey = getUserKey();
 
+        if (userKey != null) {
+            usersRef.child(userKey).child(ALREADY_WATCHED).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "Already Watched list is reading...");
+                    List<Result> AlreadyWatchedList = new ArrayList<Result>();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        AlreadyWatchedList.add(data.getValue(Result.class));
+                    }
+                    onResultLoadedListener.onResultsLoaded(AlreadyWatchedList);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "Already Watched list reading canceled");
+                }
+            });
+        }
+    }
+
+    public void deleteMovieFromAlreadyWatchedListForUser(int movieId) {
+        String userKey = getUserKey();
+
+        if (userKey != null) {
+            usersRef.child(userKey).child(ALREADY_WATCHED).child(String.valueOf(movieId)).removeValue();
+        }
     }
 
 
@@ -156,6 +256,10 @@ public class MovieDataBase {
         void onDetailedMovieLoaded(@Nullable DetailedMovie loadedDetailedMovie);
     }
 
+    public interface OnResultsLoadedListener {
+        void onResultsLoaded(List<Result> loadedResults);
+    }
+
 
     /* ************** private functions ************ */
 
@@ -168,5 +272,19 @@ public class MovieDataBase {
         }
 
         return userKey;
+    }
+
+    private void writeDetailedMovie(final int movieId) {
+        new AsyncTask<Void, Void, DetailedMovie>() {
+            @Override
+            protected DetailedMovie doInBackground(Void... params) {
+                return new MovieDetailsAPI().getMovieDetails(movieId);
+            }
+
+            @Override
+            protected void onPostExecute(DetailedMovie detailedMovie) {
+                writeDetailedMovie(detailedMovie);
+            }
+        }.execute();
     }
 }

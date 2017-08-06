@@ -26,4 +26,8 @@
     <string name="search_hint">Search a movie</string>
     <string name="poster_description">Movie\'s poster</string>
     <string name="rating_title">Rating: %.1f</string>
+    <string name="remove_all_mustSee_alert_title">Remove All MustSee List</string>
+    <string name="remove_all_mustSee_alert_message">Are you sure you want to remove all the movies from your Must See list?\n(notice: this action will affect all of your devices)</string>
+    <string name="remove_all_mustSee_alert_negative_button">CANCEL</string>
+    <string name="remove_all_mustSee_alert_positive_button">DELETE</string>
 </resources>
