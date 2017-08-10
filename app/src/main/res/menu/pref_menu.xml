@@ -6,9 +6,7 @@
 
     <item
         android:id="@+id/pref_title"
-        android:title="Settings"
+        android:title=""
         app:showAsAction="always">
-
-
     </item>
 </menu>

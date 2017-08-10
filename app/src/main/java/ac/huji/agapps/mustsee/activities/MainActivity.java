@@ -26,6 +26,7 @@ import ac.huji.agapps.mustsee.adapters.ViewPagerAdapter;
 import ac.huji.agapps.mustsee.fragments.AlreadyWatchedFragment;
 import ac.huji.agapps.mustsee.fragments.SearchFragment;
 import ac.huji.agapps.mustsee.fragments.WishlistFragment;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -163,5 +164,9 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(alreadyWatchedFragment, getString(R.string.already_watched));
 
         viewPager.setAdapter(adapter);
+
+
     }
+
+
 }

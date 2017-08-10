@@ -1,6 +1,9 @@
 
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Generated;
@@ -8,7 +11,8 @@ import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
-public class Result implements ImageableAPIElement, Serializable {
+
+public class Result implements ImageableAPIElement, Serializable, Parcelable {
 
     @SerializedName("adult")
     private Boolean mAdult;
@@ -171,5 +175,29 @@ public class Result implements ImageableAPIElement, Serializable {
                 "  \"overview\": \"" + getOverview() + "\",\n" +
                 "  \"release_date\": \"" + getReleaseDate() + "\"\n" +
                 "}";
+    }
+
+    @Override //parcebale function
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override //parcebale function
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringArray(new String[]{
+                mAdult.toString(),
+                mBackdropPath,
+                mGenreIds.toString(),
+                mId.toString(),
+                mOriginalLanguage,
+                mOriginalTitle,
+                mOverview,
+                mPopularity.toString(),
+                mPosterPath,
+                mReleaseDate,
+                mTitle,
+                mVideo.toString(),
+                mVoteAverage.toString(),
+                mVoteCount.toString()});
     }
 }

@@ -372,6 +372,9 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 
         if(user!=null)
             menu.findItem(R.id.pref_title).setTitle(user.getDisplayName());
+
+        menu.findItem(R.id.pref_title).setEnabled(false);
+
         return true;
     }
 }
