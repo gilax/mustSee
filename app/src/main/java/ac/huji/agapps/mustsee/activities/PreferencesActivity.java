@@ -7,7 +7,10 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -69,12 +72,33 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //        genreAPI = new MovieGenresAPI();
 //        genres = genreAPI.getGenres();
 
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+        findViewById(R.id.appNameInPreferencesPage).setVisibility(View.INVISIBLE);
+        findViewById(R.id.statusBar).setVisibility(View.INVISIBLE);
+
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
 
+
+
         //if we're logged in and this is the first time running PreferencesActivity, go to Main
-        if(user != null && getIntent().getStringExtra(getString(R.string.disable_auto_transfer)) == null)
+        //first if check if we got here from main, if not, don't show 'back' button in toolbar
+        if(getIntent().getStringExtra(getString(R.string.disable_auto_transfer)) != null)
+        {
+            if(getSupportActionBar() != null)
+            {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+            }
+        }
+        else if(user != null)
             startMain();
+
+
 
         progressDialog = new ProgressDialog(this);
         mStatusBar = (TextView) findViewById(R.id.statusBar);
@@ -325,5 +349,29 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //                        Toast.LENGTH_LONG).show();
 //            }
 //        });
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; go home
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.pref_menu, menu);
+        // Associate searchable configuration with the SearchView
+
+        if(user!=null)
+            menu.findItem(R.id.pref_title).setTitle(user.getDisplayName());
+        return true;
     }
 }
