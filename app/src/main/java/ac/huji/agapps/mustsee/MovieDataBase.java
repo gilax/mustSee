@@ -275,16 +275,19 @@ public class MovieDataBase {
     }
 
     private void writeDetailedMovie(final int movieId) {
-        new AsyncTask<Void, Void, DetailedMovie>() {
+        new AsyncTask<Integer, Void, DetailedMovie>() {
             @Override
-            protected DetailedMovie doInBackground(Void... params) {
-                return new MovieDetailsAPI().getMovieDetails(movieId);
+            protected DetailedMovie doInBackground(Integer... params) {
+                if (params.length > 0) {
+                    return new MovieDetailsAPI().getMovieDetails(params[0]);
+                } else
+                    return null;
             }
 
             @Override
             protected void onPostExecute(DetailedMovie detailedMovie) {
                 writeDetailedMovie(detailedMovie);
             }
-        }.execute();
+        }.execute(movieId);
     }
 }

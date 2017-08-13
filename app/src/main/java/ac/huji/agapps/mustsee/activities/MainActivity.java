@@ -164,9 +164,5 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(alreadyWatchedFragment, getString(R.string.already_watched));
 
         viewPager.setAdapter(adapter);
-
-
     }
-
-
 }

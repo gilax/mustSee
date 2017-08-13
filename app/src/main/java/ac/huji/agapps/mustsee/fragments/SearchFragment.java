@@ -1,6 +1,5 @@
 package ac.huji.agapps.mustsee.fragments;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,7 +38,6 @@ public class SearchFragment extends Fragment {
     private SearchRequest searchRequest;
     private SearchAsyncTask currentTask;
 
-    private Context context;
     private boolean firstSearch = true;
 
     public SearchFragment() {
@@ -217,6 +215,5 @@ public class SearchFragment extends Fragment {
             currentTask = null;
         }
     }
-
 
 }

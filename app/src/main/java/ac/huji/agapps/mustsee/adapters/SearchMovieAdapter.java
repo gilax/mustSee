@@ -24,7 +24,6 @@ import java.util.Arrays;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.fragments.MovieCard;
-import ac.huji.agapps.mustsee.fragments.SearchFragment;
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
@@ -63,7 +62,6 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         CardView card;
 
 
-
         MovieViewHolder(View itemView) {
             super(itemView);
             card = (CardView) itemView.findViewById(R.id.movie_card);
@@ -90,7 +88,6 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-
     /**
      * View holder when loading a new page of results.
      * When (searchResults.size() == 0 and searchResults.getTotalResults == null)
@@ -104,7 +101,6 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             progressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
         }
     }
-
 
     public SearchMovieAdapter(RecyclerView recyclerView, @Nullable MovieSearchResults results, Fragment fragment) {
         this.fragment = fragment;
@@ -173,8 +169,6 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             movieHolder.title.setText(movie.getTitle());
             movieHolder.addRate(movie.getVoteAverage());
 
-
-
             if (position % 2 == 0) {
                 movieHolder.setCardColor(FIRST_COLOR);
             } else {
@@ -185,7 +179,6 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View v) {
                     showPopupMenu(movieHolder.overflow, movie);
-
                 }
             });
 
@@ -199,7 +192,7 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             movieHolder.card.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager fragmentManager = fragment.getFragmentManager();
+                    FragmentManager fragmentManager = fragment.getChildFragmentManager();
                     Bundle args = new Bundle();
                     args.putParcelable("movie", movie);
                     MovieCard movieCard = new MovieCard();
@@ -209,15 +202,11 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     movieCard.show(fragmentManager, "");
                 }
             });
-
-
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingHolder = (LoadingViewHolder) holder;
             loadingHolder.progressBar.setIndeterminate(true);
         }
     }
-
-
 
     @Override
     public int getItemViewType(int position) {
@@ -275,5 +264,4 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void addMovieToMustSeeList(Result movie) {
         MainActivity.dataBase.writeMovieToMustSeeListForUser(movie);
     }
-
 }

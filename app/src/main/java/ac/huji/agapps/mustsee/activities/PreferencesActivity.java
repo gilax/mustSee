@@ -72,18 +72,14 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //        genreAPI = new MovieGenresAPI();
 //        genres = genreAPI.getGenres();
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         findViewById(R.id.appNameInPreferencesPage).setVisibility(View.INVISIBLE);
         findViewById(R.id.statusBar).setVisibility(View.INVISIBLE);
 
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
-
-
 
         //if we're logged in and this is the first time running PreferencesActivity, go to Main
         //first if check if we got here from main, if not, don't show 'back' button in toolbar
@@ -97,8 +93,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         }
         else if(user != null)
             startMain();
-
-
 
         progressDialog = new ProgressDialog(this);
         mStatusBar = (TextView) findViewById(R.id.statusBar);
@@ -350,8 +344,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 //            }
 //        });
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

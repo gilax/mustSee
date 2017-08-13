@@ -11,7 +11,6 @@ import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
-
 public class Result implements ImageableAPIElement, Serializable, Parcelable {
 
     @SerializedName("adult")
