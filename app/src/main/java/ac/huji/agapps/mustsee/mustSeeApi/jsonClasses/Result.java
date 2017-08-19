@@ -1,10 +1,10 @@
-
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
@@ -12,6 +12,8 @@ import com.google.gson.annotations.SerializedName;
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
 public class Result implements ImageableAPIElement, Serializable, Parcelable {
+
+    public Result() { }
 
     @SerializedName("adult")
     private Boolean mAdult;
@@ -176,27 +178,96 @@ public class Result implements ImageableAPIElement, Serializable, Parcelable {
                 "}";
     }
 
-    @Override //parcebale function
+    protected Result(Parcel in) {
+        byte mAdultVal = in.readByte();
+        mAdult = mAdultVal == 0x02 ? null : mAdultVal != 0x00;
+        mBackdropPath = in.readString();
+        if (in.readByte() == 0x01) {
+            mGenreIds = new ArrayList<Long>();
+            in.readList(mGenreIds, Long.class.getClassLoader());
+        } else {
+            mGenreIds = null;
+        }
+        mId = in.readByte() == 0x00 ? null : in.readLong();
+        mOriginalLanguage = in.readString();
+        mOriginalTitle = in.readString();
+        mOverview = in.readString();
+        mPopularity = in.readByte() == 0x00 ? null : in.readDouble();
+        mPosterPath = in.readString();
+        mReleaseDate = in.readString();
+        mTitle = in.readString();
+        byte mVideoVal = in.readByte();
+        mVideo = mVideoVal == 0x02 ? null : mVideoVal != 0x00;
+        mVoteAverage = in.readByte() == 0x00 ? null : in.readDouble();
+        mVoteCount = in.readByte() == 0x00 ? null : in.readLong();
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }
 
-    @Override //parcebale function
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{
-                mAdult.toString(),
-                mBackdropPath,
-                mGenreIds.toString(),
-                mId.toString(),
-                mOriginalLanguage,
-                mOriginalTitle,
-                mOverview,
-                mPopularity.toString(),
-                mPosterPath,
-                mReleaseDate,
-                mTitle,
-                mVideo.toString(),
-                mVoteAverage.toString(),
-                mVoteCount.toString()});
+        if (mAdult == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (mAdult ? 0x01 : 0x00));
+        }
+        dest.writeString(mBackdropPath);
+        if (mGenreIds == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(mGenreIds);
+        }
+        if (mId == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeLong(mId);
+        }
+        dest.writeString(mOriginalLanguage);
+        dest.writeString(mOriginalTitle);
+        dest.writeString(mOverview);
+        if (mPopularity == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(mPopularity);
+        }
+        dest.writeString(mPosterPath);
+        dest.writeString(mReleaseDate);
+        dest.writeString(mTitle);
+        if (mVideo == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (mVideo ? 0x01 : 0x00));
+        }
+        if (mVoteAverage == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(mVoteAverage);
+        }
+        if (mVoteCount == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeLong(mVoteCount);
+        }
     }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Result> CREATOR = new Parcelable.Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel in) {
+            return new Result(in);
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
 }

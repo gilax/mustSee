@@ -1,10 +1,13 @@
 
 package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 
-import android.app.Activity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +15,11 @@ import javax.annotation.Generated;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerView;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import ac.huji.agapps.mustsee.BuildConfig;
-import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieTrailerAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.videosClasses.MovieVideoResults;
 
@@ -371,36 +373,39 @@ public class DetailedMovie implements ImageableAPIElement {
         return reduced;
     }
 
-    public YouTubePlayerView attachTrailerPlayer(Activity activity) {
-        YouTubePlayerView playerView = (YouTubePlayerView) activity.findViewById(R.id.trailer_video_player);
-        if (this.getVideo()) {
-            playerView.setVisibility(View.VISIBLE);
-            if (mYouTubeId.length() == 0) {
-                new TrailerAsyncTask(playerView).execute(this);
-            } else {
-                playerView.initialize(BuildConfig.YOU_TUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
-                    @Override
-                    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
-                        player.setPlayerStateChangeListener(new TrailerEventListener());
-                        player.setPlaybackEventListener(new TrailerEventListener());
-
-                        if (!wasRestored) {
-                            // get the YouTube trailer key from this detailed movie
-                            player.cueVideo(getYouTubeId());
-                        }
-                    }
-
-                    @Override
-                    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-                        Log.e(TAG, "Failured to Initialize!");
-                    }
-                });
-            }
+    public void attachTrailerPlayer(Fragment parentFragment, FrameLayout frameLayout, int frameLayoutResource) {
+        if (mYouTubeId.length() == 0) {
+            new TrailerAsyncTask(parentFragment, frameLayout, frameLayoutResource).execute(this);
         } else {
-            playerView.setVisibility(View.GONE);
+            setYouTubeFragmentToFrame(parentFragment, frameLayout, frameLayoutResource);
         }
+    }
 
-        return playerView;
+    private void setYouTubeFragmentToFrame(Fragment parentFragment, final FrameLayout frameLayout, int frameLayoutResource) {
+        YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
+
+        FragmentManager fragmentManager = parentFragment.getChildFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(frameLayoutResource, youTubePlayerFragment).commit();
+
+        youTubePlayerFragment.initialize(BuildConfig.YOU_TUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
+            @Override
+            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
+                frameLayout.setVisibility(View.VISIBLE);
+                player.setPlayerStateChangeListener(new TrailerEventListener());
+                player.setPlaybackEventListener(new TrailerEventListener());
+                if (!wasRestored) {
+                    // get the YouTube trailer key from the first result
+                    player.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
+                    player.cueVideo(mYouTubeId);
+                }
+            }
+
+            @Override
+            public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+                Log.e(TAG, "Failured to Initialize!");
+            }
+        });
     }
 
     private class TrailerEventListener implements YouTubePlayer.PlaybackEventListener, YouTubePlayer.PlayerStateChangeListener {
@@ -463,11 +468,16 @@ public class DetailedMovie implements ImageableAPIElement {
     private class TrailerAsyncTask extends AsyncTask<DetailedMovie, Void, MovieVideoResults> {
 
         private static final String YOUTUBE = "YouTube";
-        YouTubePlayerView playerView;
 
-        public TrailerAsyncTask(YouTubePlayerView playerView) {
+        private final Fragment mParentFragment;
+        private final FrameLayout mFrameLayout;
+        private final int mFrameLayoutResource;
+
+        public TrailerAsyncTask(Fragment parentFragment, FrameLayout frameLayout, int frameLayoutResource) {
             super();
-            this.playerView = playerView;
+            this.mParentFragment = parentFragment;
+            this.mFrameLayout = frameLayout;
+            this.mFrameLayoutResource = frameLayoutResource;
         }
 
         @Override
@@ -480,26 +490,7 @@ public class DetailedMovie implements ImageableAPIElement {
         protected void onPostExecute(final MovieVideoResults results) {
             if (results != null && results.getResults().size() > 0 && results.getResults().get(0).getSite().equals(YOUTUBE)) {
                 mYouTubeId = results.getResults().get(0).getKey();
-                playerView.initialize(BuildConfig.YOU_TUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
-                    @Override
-                    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
-                        player.setPlayerStateChangeListener(new TrailerEventListener());
-                        player.setPlaybackEventListener(new TrailerEventListener());
-
-                        if (!wasRestored) {
-                            // get the YouTube trailer key from the first result
-                            player.cueVideo(mYouTubeId);
-                        }
-                    }
-
-                    @Override
-                    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult initializationResult) {
-                        Log.e(TAG, "Failured to Initialize!");
-                    }
-                });
-            } else {
-                playerView.setVisibility(View.GONE);
-                playerView = null;
+                setYouTubeFragmentToFrame(mParentFragment, mFrameLayout, mFrameLayoutResource);
             }
         }
     }

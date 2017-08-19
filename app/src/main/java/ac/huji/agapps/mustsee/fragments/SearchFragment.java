@@ -24,7 +24,7 @@ import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
 import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements Serializable {
 
     private static final String SEARCH_RESULTS_KEY = "SearchResults";
     private static final String SEARCH_REQUEST_KEY = "SearchRequest";

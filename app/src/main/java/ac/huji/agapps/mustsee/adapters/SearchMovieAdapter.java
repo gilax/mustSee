@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ac.huji.agapps.mustsee.R;
@@ -29,7 +30,7 @@ import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 
 
-public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Serializable {
 
     private static final String TAG = "MOVIE ADAPTER";
 
@@ -192,14 +193,14 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             movieHolder.card.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager fragmentManager = fragment.getChildFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragment.getChildFragmentManager().beginTransaction().addToBackStack("");
                     Bundle args = new Bundle();
                     args.putParcelable("movie", movie);
                     MovieCard movieCard = new MovieCard();
 
                     movieCard.setArguments(args);
 
-                    movieCard.show(fragmentManager, "");
+                    movieCard.show(fragmentTransaction, "");
                 }
             });
         } else if (holder instanceof LoadingViewHolder) {

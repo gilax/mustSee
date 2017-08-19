@@ -1,30 +1,32 @@
 package ac.huji.agapps.mustsee.fragments;
 
 import android.app.Dialog;
-import android.os.AsyncTask;
-import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.concurrent.ExecutionException;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieDetailsAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 
-public class MovieCard extends DialogFragment{
+public class MovieCard extends DialogFragment {
 
+    // private members for the full card display
     private ImageView mPoster;
     private TextView mTitle;
     private TextView mAge_restriction;
@@ -35,11 +37,18 @@ public class MovieCard extends DialogFragment{
     private TextView mDescription;
     private TextView mCast;
     private TextView mDirector;
+    private FrameLayout mTrailerFrame;
 
     private Result movie;
 
     public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.movie_full_card, null);
+    }
 
     @NonNull
     @Override
@@ -47,9 +56,6 @@ public class MovieCard extends DialogFragment{
         Bundle bundle = getArguments();
         assert bundle != null;
         movie = bundle.getParcelable("movie");
-
-        DetailedMovieAsyncTask task = new DetailedMovieAsyncTask();
-        task.execute(movie.getId().intValue());
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -65,10 +71,13 @@ public class MovieCard extends DialogFragment{
         mDescription = (TextView) view.findViewById(R.id.movie_description);
         mCast = (TextView) view.findViewById(R.id.movie_cast);
         mDirector = (TextView) view.findViewById(R.id.movie_director);
+        mTrailerFrame = (FrameLayout) view.findViewById(R.id.youtube_player_frame);
+
+        DetailedMovieAsyncTask task = new DetailedMovieAsyncTask();
+        task.execute(movie.getId().intValue());
 
         mTitle.setText(movie.getTitle());
         mAge_restriction.setText("Age restriction: " + ((movie.getAdult()) ? "Yes" : "None"));
-        mGenre.setText("Genre: " + movie.getGenreIds().toString());
         mRatings.setText("Vote average: " + movie.getVoteAverage());
         mTrailer.setText("Trailer: " + ((movie.getAdult()) ? "Yes" : "None"));
         mDescription.setText(movie.getOverview());
@@ -92,36 +101,19 @@ public class MovieCard extends DialogFragment{
             }
         });
 
-        DetailedMovie detailedMovie;
-        try {
-            detailedMovie = task.get();
-        } catch (InterruptedException | ExecutionException e) {
-            Log.d(TAG, "Couldn't load the detailed movie.", e);
-            detailedMovie = null;
-        }
-
-        if (detailedMovie != null) {
-            mCast.setText("Cast: " + TODO);
-            mLength.setText("Length: " + detailedMovie.getRuntime().intValue());
-            mDirector.setText("Director: " + TODO);
-//            detailedMovie.attachTrailerPlayer((MainActivity)getContext()); TODO fix when adding trailerPlayer
-            view.findViewById(R.id.youtube_player_frame).setVisibility(View.GONE);
-        } else {
-            mDirector.setVisibility(View.GONE);
-            mLength.setVisibility(View.GONE);
-            mCast.setVisibility(View.GONE);
-            view.findViewById(R.id.youtube_player_frame).setVisibility(View.GONE);
-        }
-
-        final AlertDialog myDialog = builder.create();
-
-        return myDialog;
+        return builder.create();
     }
 
     private class DetailedMovieAsyncTask extends AsyncTask<Integer, Void, DetailedMovie> {
+
         @Override
         protected void onPreExecute() {
             // TODO case we want to add a loading dialog - start
+            mDirector.setVisibility(View.GONE);
+            mLength.setVisibility(View.GONE);
+            mCast.setVisibility(View.GONE);
+            mGenre.setVisibility(View.GONE);
+            mTrailerFrame.setVisibility(View.GONE);
         }
 
         @Override
@@ -134,6 +126,30 @@ public class MovieCard extends DialogFragment{
 
         @Override
         protected void onPostExecute(DetailedMovie detailedMovie) {
+            if (detailedMovie != null) {
+                mCast.setVisibility(View.VISIBLE);
+                mCast.setText("Cast: " + TODO);
+                if (detailedMovie.getRuntime() != null) {
+                    mLength.setVisibility(View.VISIBLE);
+                    mLength.setText("Length: " + detailedMovie.getRuntime().intValue() + " min.");
+                }
+                if (detailedMovie.getGenres() != null && detailedMovie.getGenres().size() > 0) {
+                    mGenre.setVisibility(View.VISIBLE);
+                    String genres = "";
+                    boolean isFirstGenre = true;
+                    for (Genre genre : detailedMovie.getGenres()) {
+                        if (isFirstGenre) {
+                            genres = genre.getName();
+                            isFirstGenre = false;
+                        } else
+                            genres += ", " + genre.getName();
+                    }
+                    mGenre.setText("Genre: " + genres);
+                }
+                mDirector.setVisibility(View.VISIBLE);
+                mDirector.setText("Director: " + TODO);
+                detailedMovie.attachTrailerPlayer(MovieCard.this, mTrailerFrame, R.id.youtube_player_frame);
+            }
             // TODO case we want to add a loading dialog - stop
         }
     }
