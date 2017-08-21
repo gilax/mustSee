@@ -20,6 +20,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
 import ac.huji.agapps.mustsee.MovieDataBase;
 import ac.huji.agapps.mustsee.R;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GoogleApiClient mGoogleApiClient;
     private FirebaseUser user;
+    private String sortPick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,19 @@ public class MainActivity extends AppCompatActivity {
 
         setupViewPager(viewPager);
         getUserName();
+        sortPick = getSortPick();
+
+    }
+
+    /**
+     * tries to retrieve user's sorting pick in shared preferences
+     */
+    private String getSortPick() {
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
+                Context.MODE_PRIVATE);
+
+        return new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
+
     }
 
 
@@ -93,6 +108,12 @@ public class MainActivity extends AppCompatActivity {
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
         mGoogleApiClient.connect();
+
+        if(!sortPick.equals(getSortPick()))
+        {
+            //todo: find better way than full initialization
+//            setupViewPager(viewPager);
+        }
 
         super.onStart();
     }

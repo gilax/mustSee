@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,16 +36,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import ac.huji.agapps.mustsee.adapters.GenresAdapter;
 import ac.huji.agapps.mustsee.R;
-import ac.huji.agapps.mustsee.mustSeeApi.MovieGenresAPI;
-import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
-import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 
 public class PreferencesActivity extends AppCompatActivity implements  View.OnClickListener{
 
@@ -56,21 +49,28 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private Button mLogOutButton; // log out buton
     private TextView mStatusBar; //status of who's online
     private FirebaseUser user;
+    private RadioGroup radioGroup;
 
-    //api genres:
-    private ListView listView;
-    private MovieGenresAPI genreAPI;
-    private Genres genres;
-    private GenresAdapter dataAdapter = null;
+    public enum SortBy {
+        TITLE("original_title.desc"),
+        POPULARITY("popularity.desc"),
+        VOTE_AVERAGE("vote_average.desc");
+
+        private String sortType;
+
+        SortBy(String sortType) {
+            this.sortType = sortType;
+        }
+
+        public String sortType() {
+            return sortType;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
-//        todo :need to take from DB instead from API
-//        todo: uncomment this, it didn't work for me for some reason so I manually put a list of genres later on
-//        genreAPI = new MovieGenresAPI();
-//        genres = genreAPI.getGenres();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -80,6 +80,9 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
+
+        radioGroup = (RadioGroup) findViewById(R.id.radio_group);
+
 
         //if we're logged in and this is the first time running PreferencesActivity, go to Main
         //first if check if we got here from main, if not, don't show 'back' button in toolbar
@@ -127,16 +130,35 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
             public void onClick(View v) {
                 signIn();
                 //save genres in sharedPrefences
-                saveGenres();
+                saveSortPick();
             }
         });
 
-//      for testing purposes, reset sharedPreferences in comment below
-//        resetFavoriteGenres();
-        getFavGenres();
-        displayListView();
+        getSortPick();
+
+        initRadio();
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                saveSortPick();
+            }
+        });
 //        checkLogOutIntent(getIntent());
     }
+
+
+    private void initRadio() {
+        RadioButton title_rad = (RadioButton) findViewById(R.id.title_radio);
+        RadioButton pop_rad = (RadioButton) findViewById(R.id.popularity_radio);
+        RadioButton vote_rad = (RadioButton) findViewById(R.id.vote_average_radio);
+
+        title_rad.setText(SortBy.TITLE.sortType());
+        pop_rad.setText(SortBy.POPULARITY.sortType());
+        vote_rad.setText(SortBy.VOTE_AVERAGE.sortType());
+    }
+
 
     @Override
     protected void onStart() {
@@ -146,40 +168,45 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     }
 
     /**
-     * used to reset sharedPreferences for debugging
+     * tries to retrieve user's sorting pick in shared preferences
      */
-    private void resetFavoriteGenres() {
+    private void getSortPick() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sharedPref.edit();
-        edit.clear();
 
-        edit.apply();
+
+        String type = new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
+//        SortBy type = new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), SortBy.class);
+
+        if(type != null && type.length() != 0)
+        {
+            if(type.equals(SortBy.POPULARITY.sortType()))
+                radioGroup.check(R.id.popularity_radio);
+            else if(type.equals(SortBy.TITLE.sortType()))
+                radioGroup.check(R.id.title_radio);
+            else
+                radioGroup.check(R.id.vote_average_radio);
+
+        }
+//        String sortPick = sharedPref.getString(getString(R.string.userSortPick), "");
+
     }
 
-    /**
-     * tries to retrieve favorite genres in shared preferences
-     */
-    private void getFavGenres() {
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
-                Context.MODE_PRIVATE);
-        genres = new Gson().fromJson(sharedPref.getString(getString(R.string.userGenres), ""), Genres.class);
-
-    }
-
-    private void saveGenres() {
+    private void saveSortPick() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        Gson gson = new Gson();
-        genres.setGenres(dataAdapter.getAllItems());
-        String fav_genres_string = gson.toJson(genres);
+        int id = radioGroup.getCheckedRadioButtonId();
+        if(id != -1)
+        {
+            RadioButton button = (RadioButton)findViewById(id);
+            String sortType = (String) button.getText();
+//            SortBy sortType = SortBy.valueOf((String) button.getText());
 
-        //stores the fav genres with a syntax of <genre.id>.<genre.name>,
-        //for example: 123.horror,124.action, and so on.
-        editor.putString(getString(R.string.userGenres), fav_genres_string);
-
-        editor.apply();
+            Gson gson = new Gson();
+            editor.putString(getString(R.string.userSortPick), gson.toJson(sortType) );
+            editor.apply();
+        }
     }
 
     private void saveUserName(String userName) {
@@ -208,7 +235,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                         updateUI(null);
                     }
                 });
-        Toast.makeText(PreferencesActivity.this, "logged out", Toast.LENGTH_SHORT).show();
+        Toast.makeText(PreferencesActivity.this, R.string.logged_out, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -235,7 +262,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        progressDialog.setMessage("Registering Please Wait...");
+        progressDialog.setMessage(getString(R.string.register_wait));
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
@@ -284,13 +311,13 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         progressDialog.dismiss();
         if (user != null) {
             //user logged in, set log in button invisible
-            mStatusBar.setText("user: " + user.getDisplayName());
+            mStatusBar.setText(getString(R.string.user_status_bar) + user.getDisplayName());
             mGoogleButton.setVisibility(View.GONE);
             mLogOutButton.setVisibility(View.VISIBLE);
             mLogOutButton.setText(R.string.log_out);
         } else {
             //user logged out, set log out button invisible
-            mStatusBar.setText("user: Disconnected");
+            mStatusBar.setText(getString(R.string.user_disconnected_status_bar));
             mGoogleButton.setVisibility(View.VISIBLE);
             mLogOutButton.setVisibility(View.GONE);
         }
@@ -308,42 +335,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         }
     }
 
-    /**
-     * displays the listview of favorite genres
-     */
-    private void displayListView() {
-
-        //create an ArrayAdaptar from the String Array
-        if (genres == null) {
-
-// todo: remove this later, was for testing (creating custom list of genres), also remove constructor in Genre
-            List<Genre> my_list = new ArrayList<>();
-            my_list.add(new Genre(123, "action"));
-            my_list.add(new Genre(124, "comedy"));
-            my_list.add(new Genre(125, "horror"));
-            my_list.add(new Genre(126, "animated"));
-            my_list.add(new Genre(127, "romance"));
-            genres = new Genres();
-            genres.setGenres(my_list);
-            genres.setDate(new Date());
-        }
-
-        dataAdapter = new GenresAdapter(this, R.layout.genre_check_box, genres);
-        listView = (ListView) findViewById(R.id.listView1);
-        // Assign adapter to ListView
-        listView.setAdapter(dataAdapter);
-
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            public void onItemClick(AdapterView<?> parent, View view,
-//                                    int position, long id) {
-//                // When clicked, show a toast with the TextView text
-//                Genre genre = (Genre) parent.getItemAtPosition(position);
-//                Toast.makeText(getApplicationContext(),
-//                        "Clicked on Row: " + genre.getName(),
-//                        Toast.LENGTH_LONG).show();
-//            }
-//        });
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -1,5 +1,7 @@
 package ac.huji.agapps.mustsee.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,8 +17,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
+import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.adapters.SearchMovieAdapter;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
@@ -64,7 +69,7 @@ public class SearchFragment extends Fragment implements Serializable {
         if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_REQUEST_KEY) != null) {
             searchRequest = (SearchRequest) savedInstanceState.getSerializable(SEARCH_REQUEST_KEY);
         } else {
-            searchRequest = new TopMoviesAPI();
+            searchRequest = new TopMoviesAPI(getSortPick());
         }
 
         if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_RESULTS_KEY) != null) {
@@ -158,7 +163,8 @@ public class SearchFragment extends Fragment implements Serializable {
                 movieAdapter.setLoaded();
                 return true;
             }
-            searchRequest = new TopMoviesAPI();
+
+            searchRequest = new TopMoviesAPI(getSortPick());
         }
         assert searchResults != null;
         this.searchResults.reset();
@@ -177,6 +183,17 @@ public class SearchFragment extends Fragment implements Serializable {
         }
         currentTask = new SearchAsyncTask();
         currentTask.execute(searchRequest);
+    }
+
+    /**
+     * tries to retrieve user's sorting pick in shared preferences
+     */
+    private String getSortPick() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(getString(R.string.shared_pref_id),
+                Context.MODE_PRIVATE);
+
+        return new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
+
     }
 
     private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> implements Serializable {
