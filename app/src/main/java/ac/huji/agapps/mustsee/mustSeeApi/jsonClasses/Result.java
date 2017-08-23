@@ -3,11 +3,13 @@ package ac.huji.agapps.mustsee.mustSeeApi.jsonClasses;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.Generated;
-import com.google.gson.annotations.SerializedName;
 
 @Generated("net.hexar.json2pojo")
 @SuppressWarnings("unused")
@@ -270,4 +272,14 @@ public class Result implements ImageableAPIElement, Serializable, Parcelable {
             return new Result[size];
         }
     };
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Result) {
+            if (((Result) obj).getId().equals(getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

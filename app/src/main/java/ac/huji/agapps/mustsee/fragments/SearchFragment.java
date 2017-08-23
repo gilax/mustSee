@@ -2,14 +2,11 @@ package ac.huji.agapps.mustsee.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,7 +18,7 @@ import com.google.gson.Gson;
 
 import java.io.Serializable;
 
-import ac.huji.agapps.mustsee.activities.MainActivity;
+import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.SearchMovieAdapter;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
@@ -29,15 +26,14 @@ import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
 import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
-public class SearchFragment extends Fragment implements Serializable {
+public class SearchFragment extends BaseMovieFragment {
 
     private static final String SEARCH_RESULTS_KEY = "SearchResults";
     private static final String SEARCH_REQUEST_KEY = "SearchRequest";
     private static final String CURRENT_SEARCH_ASYNC_TASK_KEY = "CurrentTask";
     private final String TAG = "SEARCH FRAGMENT";
 
-    private RecyclerView recyclerView;
-    private SearchMovieAdapter movieAdapter;
+    private SearchMovieAdapter searchMovieAdapter;
     @Nullable
     private MovieSearchResults searchResults;
     private SearchRequest searchRequest;
@@ -50,11 +46,6 @@ public class SearchFragment extends Fragment implements Serializable {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(SEARCH_RESULTS_KEY, searchResults);
@@ -63,67 +54,8 @@ public class SearchFragment extends Fragment implements Serializable {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_REQUEST_KEY) != null) {
-            searchRequest = (SearchRequest) savedInstanceState.getSerializable(SEARCH_REQUEST_KEY);
-        } else {
-            searchRequest = new TopMoviesAPI(getSortPick());
-        }
-
-        if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_RESULTS_KEY) != null) {
-            searchResults = (MovieSearchResults) savedInstanceState.getSerializable(SEARCH_RESULTS_KEY);
-        } else {
-            searchResults = new MovieSearchResults();
-        }
-
-        boolean isSearching = false;
-        if (savedInstanceState != null && savedInstanceState.getSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY) != null) {
-            // while searching
-            currentTask = (SearchAsyncTask) savedInstanceState.getSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY);
-            if (currentTask.getStatus() == AsyncTask.Status.FINISHED) {
-                currentTask = null;
-            }
-            isSearching = true;
-        } else {
-            // not searching
-            searchResults.addNullToResults();
-        }
-
-        // Inflate the layout for this fragment
-        View fragment = inflater.inflate(R.layout.fragment_search, container, false);
-        recyclerView = (RecyclerView) fragment.findViewById(R.id.recycler_movie);
-
-        int numberOfColumns = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) ? 1 : 2;
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy((numberOfColumns == 1) ? StaggeredGridLayoutManager.GAP_HANDLING_NONE : StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        recyclerView.setLayoutManager(layoutManager);
-
-        movieAdapter = new SearchMovieAdapter(recyclerView, searchResults, this);
-        recyclerView.setAdapter(movieAdapter);
-
-        if (isSearching && searchResults.lastResult() != null) {
-            movieAdapter.setLoaded();
-        }
-
-        movieAdapter.setOnLoadMoreListener(new SearchMovieAdapter.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (searchResults.getTotalPages() == null ||
-                        searchResults.getResults().size() < searchResults.getTotalResults().intValue()) {
-                    if (!firstSearch) {
-                        if (searchResults.addNullToResults())
-                            movieAdapter.notifyItemInserted(searchResults.getResults().size() - 1);
-                    } else {
-                        firstSearch = false;
-                    }
-                    trySearch();
-                } else {
-                    movieAdapter.setLoaded();
-                }
-            }
-        });
+    public View onCreateFragment(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState, View fragment) {
 
         final TextInputEditText editText = (TextInputEditText) fragment.findViewById(R.id.search_editText);
         AppCompatImageButton button = (AppCompatImageButton) fragment.findViewById(R.id.search_action_button);
@@ -150,29 +82,92 @@ public class SearchFragment extends Fragment implements Serializable {
         return fragment;
     }
 
+    @Override
+    protected int getFragmentResourceId() {
+        return R.layout.fragment_search;
+    }
+
+    @Override
+    protected BaseMovieAdapter createAdapter(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_REQUEST_KEY) != null) {
+            searchRequest = (SearchRequest) savedInstanceState.getSerializable(SEARCH_REQUEST_KEY);
+        } else {
+            searchRequest = new TopMoviesAPI(getSortBy());
+        }
+
+        if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_RESULTS_KEY) != null) {
+            searchResults = (MovieSearchResults) savedInstanceState.getSerializable(SEARCH_RESULTS_KEY);
+        } else {
+            searchResults = new MovieSearchResults();
+        }
+
+        boolean isSearching = false;
+        if (savedInstanceState != null && savedInstanceState.getSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY) != null) {
+            // while searching
+            currentTask = (SearchAsyncTask) savedInstanceState.getSerializable(CURRENT_SEARCH_ASYNC_TASK_KEY);
+            assert currentTask != null;
+            if (currentTask.getStatus() == AsyncTask.Status.FINISHED) {
+                currentTask = null;
+            }
+            isSearching = true;
+        } else {
+            // not searching
+            searchResults.addNullToResults();
+        }
+
+        searchMovieAdapter = new SearchMovieAdapter(recyclerView, this, (StaggeredGridLayoutManager) recyclerView.getLayoutManager(), searchResults);
+
+        if (isSearching && searchResults.lastResult() != null) {
+            searchMovieAdapter.setLoaded();
+        }
+
+        return searchMovieAdapter;
+    }
+
+    @Override
+    protected BaseMovieAdapter.OnLoadMoreListener createOnLoadMoreListener() {
+        return new BaseMovieAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                assert searchResults != null;
+                if (searchResults.getTotalPages() == null ||
+                        searchResults.getResults().size() < searchResults.getTotalResults().intValue()) {
+                    if (!firstSearch) {
+                        if (searchResults.addNullToResults())
+                            searchMovieAdapter.notifyItemInserted(searchResults.getResults().size() - 1);
+                    } else {
+                        firstSearch = false;
+                    }
+                    trySearch();
+                } else {
+                    searchMovieAdapter.setLoaded();
+                }
+            }
+        };
+    }
+
     public boolean onQueryTextSubmit(String query) {
         if (query.length() > 0) {
             if ((searchRequest instanceof MovieSearchAPI) &&
                     (((MovieSearchAPI)searchRequest).getQuery().trim().equals(query.trim()))) {
-                movieAdapter.setLoaded();
+                searchMovieAdapter.setLoaded();
                 return true;
             }
             searchRequest = new MovieSearchAPI(query);
         } else {
             if (searchRequest instanceof TopMoviesAPI) {
-                movieAdapter.setLoaded();
+                searchMovieAdapter.setLoaded();
                 return true;
             }
-
-            searchRequest = new TopMoviesAPI(getSortPick());
+            searchRequest = new TopMoviesAPI(getSortBy());
         }
         assert searchResults != null;
         this.searchResults.reset();
         this.searchResults.addNullToResults();
-        movieAdapter.resetSearchResultsState();
+        searchMovieAdapter.resetLoadingState();
         firstSearch = true;
         recyclerView.smoothScrollToPosition(0);
-        movieAdapter.notifyDataSetChanged();
+        searchMovieAdapter.notifyDataSetChanged();
         trySearch();
         return true;
     }
@@ -188,7 +183,7 @@ public class SearchFragment extends Fragment implements Serializable {
     /**
      * tries to retrieve user's sorting pick in shared preferences
      */
-    private String getSortPick() {
+    private String getSortBy() {
         SharedPreferences sharedPref = getActivity().getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
 
@@ -215,7 +210,7 @@ public class SearchFragment extends Fragment implements Serializable {
         protected void onPostExecute(@Nullable MovieSearchResults searchResults) {
             if (searchResults == null) {
                 // TODO handle case where there isn't results
-                movieAdapter.setLoaded();
+                searchMovieAdapter.setLoaded();
                 return;
             }
 
@@ -223,14 +218,13 @@ public class SearchFragment extends Fragment implements Serializable {
                 SearchFragment.this.searchResults.removeLastFromResults();
             }
 
-            movieAdapter.addSearchResults(searchResults);
+            searchMovieAdapter.addSearchResults(searchResults);
 
             Log.d(TAG, "Results added. results page = " + searchResults.getPage().intValue());
 
-            movieAdapter.setLoaded();
-            movieAdapter.notifyDataSetChanged();
+            searchMovieAdapter.setLoaded();
+            searchMovieAdapter.notifyDataSetChanged();
             currentTask = null;
         }
     }
-
 }

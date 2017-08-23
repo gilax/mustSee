@@ -13,7 +13,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ac.huji.agapps.mustsee.mustSeeApi.MovieDetailsAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
@@ -129,7 +128,7 @@ public class MovieDataBase {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.d(TAG, "Must See list is reading...");
-                    List<Result> mustSeeList = new ArrayList<Result>();
+                    ArrayList<Result> mustSeeList = new ArrayList<Result>();
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         mustSeeList.add(data.getValue(Result.class));
                     }
@@ -215,7 +214,7 @@ public class MovieDataBase {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.d(TAG, "Already Watched list is reading...");
-                    List<Result> AlreadyWatchedList = new ArrayList<Result>();
+                    ArrayList<Result> AlreadyWatchedList = new ArrayList<Result>();
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         AlreadyWatchedList.add(data.getValue(Result.class));
                     }
@@ -257,7 +256,7 @@ public class MovieDataBase {
     }
 
     public interface OnResultsLoadedListener {
-        void onResultsLoaded(List<Result> loadedResults);
+        void onResultsLoaded(ArrayList<Result> loadedResults);
     }
 
 

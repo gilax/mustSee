@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -13,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -51,19 +51,19 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private FirebaseUser user;
     private RadioGroup radioGroup;
 
-    public enum SortBy {
+    private enum SortBy {
         TITLE("original_title.desc"),
         POPULARITY("popularity.desc"),
         VOTE_AVERAGE("vote_average.desc");
 
-        private String sortType;
+        private String sortByValue;
 
-        SortBy(String sortType) {
-            this.sortType = sortType;
+        SortBy(String sortByValue) {
+            this.sortByValue = sortByValue;
         }
 
-        public String sortType() {
-            return sortType;
+        public String getSortByValue() {
+            return sortByValue;
         }
     }
 
@@ -83,18 +83,15 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
-
         //if we're logged in and this is the first time running PreferencesActivity, go to Main
         //first if check if we got here from main, if not, don't show 'back' button in toolbar
-        if(getIntent().getStringExtra(getString(R.string.disable_auto_transfer)) != null)
-        {
-            if(getSupportActionBar() != null)
-            {
+        if (getIntent().getStringExtra(getString(R.string.disable_auto_transfer)) != null) {
+            if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
             }
         }
-        else if(user != null)
+        else if (user != null)
             startMain();
 
         progressDialog = new ProgressDialog(this);
@@ -130,11 +127,11 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
             public void onClick(View v) {
                 signIn();
                 //save genres in sharedPrefences
-                saveSortPick();
+                saveSortBy();
             }
         });
 
-        getSortPick();
+        getSortBy();
 
         initRadio();
 
@@ -142,23 +139,21 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                saveSortPick();
+                saveSortBy();
             }
         });
-//        checkLogOutIntent(getIntent());
+//        checkLogOutIntent(getIntent()); TODO what this should do?
     }
-
-
+    
     private void initRadio() {
         RadioButton title_rad = (RadioButton) findViewById(R.id.title_radio);
         RadioButton pop_rad = (RadioButton) findViewById(R.id.popularity_radio);
         RadioButton vote_rad = (RadioButton) findViewById(R.id.vote_average_radio);
 
-        title_rad.setText(SortBy.TITLE.sortType());
-        pop_rad.setText(SortBy.POPULARITY.sortType());
-        vote_rad.setText(SortBy.VOTE_AVERAGE.sortType());
+        title_rad.setText(SortBy.TITLE.getSortByValue());
+        pop_rad.setText(SortBy.POPULARITY.getSortByValue());
+        vote_rad.setText(SortBy.VOTE_AVERAGE.getSortByValue());
     }
-
 
     @Override
     protected void onStart() {
@@ -170,38 +165,32 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     /**
      * tries to retrieve user's sorting pick in shared preferences
      */
-    private void getSortPick() {
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
-                Context.MODE_PRIVATE);
-
+    private void getSortBy() {
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id), Context.MODE_PRIVATE);
 
         String type = new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
 //        SortBy type = new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), SortBy.class);
 
-        if(type != null && type.length() != 0)
-        {
-            if(type.equals(SortBy.POPULARITY.sortType()))
+        if (type != null && type.length() != 0) {
+            if (type.equals(SortBy.POPULARITY.getSortByValue()))
                 radioGroup.check(R.id.popularity_radio);
-            else if(type.equals(SortBy.TITLE.sortType()))
+            else if (type.equals(SortBy.TITLE.getSortByValue()))
                 radioGroup.check(R.id.title_radio);
             else
                 radioGroup.check(R.id.vote_average_radio);
-
         }
 //        String sortPick = sharedPref.getString(getString(R.string.userSortPick), "");
-
     }
 
-    private void saveSortPick() {
+    private void saveSortBy() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
         int id = radioGroup.getCheckedRadioButtonId();
-        if(id != -1)
-        {
+        if (id != -1) {
             RadioButton button = (RadioButton)findViewById(id);
             String sortType = (String) button.getText();
-//            SortBy sortType = SortBy.valueOf((String) button.getText());
+//            SortBy sortByValue = SortBy.valueOf((String) button.getText());
 
             Gson gson = new Gson();
             editor.putString(getString(R.string.userSortPick), gson.toJson(sortType) );
@@ -209,14 +198,12 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         }
     }
 
-    private void saveUserName(String userName) {
+    private void saveUserName(@Nullable String userName) {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_username), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.userName), userName);
         editor.apply();
     }
-
-
 
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
@@ -251,14 +238,10 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                 firebaseAuthWithGoogle(account);
             } else {
                 updateUI(null);
-
-                // Google Sign In failed, update UI appropriately
-                // ...
             }
         } else {
             Toast.makeText(PreferencesActivity.this, R.string.error_msg, Toast.LENGTH_LONG).show();
         }
-
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
@@ -278,8 +261,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 
                             saveUserName(user.getDisplayName());
                             startMain();
-
-//                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -287,7 +268,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-                        // ...
                     }
                 });
     }
@@ -297,7 +277,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
      */
     private void startMain() {
         Intent myIntent = new Intent(PreferencesActivity.this, MainActivity.class);
-        PreferencesActivity.this.startActivity(myIntent);
+        startActivity(myIntent);
 
         //remove this activity from the activity stack, we don't wanna be able to press 'back' into it
         finish();
@@ -335,7 +315,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         }
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -353,7 +332,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         getMenuInflater().inflate(R.menu.pref_menu, menu);
         // Associate searchable configuration with the SearchView
 
-        if(user!=null)
+        if (user!=null)
             menu.findItem(R.id.pref_title).setTitle(user.getDisplayName());
 
         menu.findItem(R.id.pref_title).setEnabled(false);

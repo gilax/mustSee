@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -11,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-//import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -28,18 +28,16 @@ import ac.huji.agapps.mustsee.adapters.ViewPagerAdapter;
 import ac.huji.agapps.mustsee.fragments.AlreadyWatchedFragment;
 import ac.huji.agapps.mustsee.fragments.SearchFragment;
 import ac.huji.agapps.mustsee.fragments.WishlistFragment;
-import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TabLayout tabLayout;
     private ViewPager viewPager;
 
     public static MovieDataBase dataBase = new MovieDataBase();
 
     SearchFragment searchFragment;
-    WishlistFragment wishlistFragment;
-    AlreadyWatchedFragment alreadyWatchedFragment;
+    public WishlistFragment wishlistFragment;
+    public AlreadyWatchedFragment alreadyWatchedFragment;
 
     private GoogleApiClient mGoogleApiClient;
     private FirebaseUser user;
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(3);
 
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -83,14 +81,14 @@ public class MainActivity extends AppCompatActivity {
 
         setupViewPager(viewPager);
         getUserName();
-        sortPick = getSortPick();
+        sortPick = getSortBy();
 
     }
 
     /**
      * tries to retrieve user's sorting pick in shared preferences
      */
-    private String getSortPick() {
+    private String getSortBy() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
 
@@ -109,8 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleApiClient.connect();
 
-        if(!sortPick.equals(getSortPick()))
-        {
+        if (getSortBy() != null && !sortPick.equals(getSortBy())) {
             //todo: find better way than full initialization
 //            setupViewPager(viewPager);
         }
@@ -131,12 +128,11 @@ public class MainActivity extends AppCompatActivity {
     private String getUserName() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_username),
                 Context.MODE_PRIVATE);
-        String userName = sharedPref.getString(getString(R.string.userName), "");
-        return userName;
+        return sharedPref.getString(getString(R.string.userName), "");
     }
 
 
-    /*
+    /**
     buttons in the menu
      */
     @Override
@@ -160,11 +156,11 @@ public class MainActivity extends AppCompatActivity {
                     Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                             new ResultCallback<Status>() {
                                 @Override
-                                public void onResult(Status status) {
-                                Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
-                                MainActivity.this.startActivity(myIntent);
-                                //finish(), can't go back to the main page once you log out
-                                finish();
+                                public void onResult(@NonNull Status status) {
+                                    Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
+                                    MainActivity.this.startActivity(myIntent);
+                                    //finish(), can't go back to the main page once you log out
+                                    finish();
                                 }
                             });
                 }

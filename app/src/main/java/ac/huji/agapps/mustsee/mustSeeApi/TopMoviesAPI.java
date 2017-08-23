@@ -3,7 +3,6 @@ package ac.huji.agapps.mustsee.mustSeeApi;
 import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonNull;
 
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
@@ -19,22 +18,19 @@ public class TopMoviesAPI extends TmdbApiRequest implements SearchRequest {
     private static final double VOTE_AVERAGE_MIN = 6.5;
     private static final String PAGE_NUMBER_PARAMETER = "&page=";
 
-    private final String TAG = "TMDB Top movies API";
     private int nextPageNumber = 1;
     private int numberOfPages = 1;
-    private String sort_type;
+    private String sortBy;
 
-    public TopMoviesAPI()
-    {
-        this.sort_type = POPULARITY_DESC_SORT_BY;
+    public TopMoviesAPI() {
+        this(null);
     }
 
-    public TopMoviesAPI(String sort_type)
-    {
-        if(sort_type == null || sort_type.length() == 0)
-            this.sort_type = POPULARITY_DESC_SORT_BY;
+    public TopMoviesAPI(String sortBy) {
+        if (sortBy == null || sortBy.length() == 0)
+            this.sortBy = POPULARITY_DESC_SORT_BY;
         else
-            this.sort_type = sort_type;
+            this.sortBy = sortBy;
     }
 
     /**
@@ -60,10 +56,9 @@ public class TopMoviesAPI extends TmdbApiRequest implements SearchRequest {
     @Nullable
     @Override
     public MovieSearchResults search(int pageNumber) {
-
         this.url += TOP_MOVIES_BASE_URL + getApiKeyForURL();
         this.url += LANGUAGE_PARAMETER + ENGLISH_LANGUAGE;
-        this.url += SORT_BY_PARAMETER + sort_type;
+        this.url += SORT_BY_PARAMETER + sortBy;
         this.url += VOTE_COUNT_GTE_PARAMETER + VOTE_COUNT_MIN;
         this.url += VOTE_AVERAGE_GTE_PARAMETER + VOTE_AVERAGE_MIN;
         this.url += PAGE_NUMBER_PARAMETER + pageNumber;

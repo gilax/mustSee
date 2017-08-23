@@ -7,8 +7,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import ac.huji.agapps.mustsee.fragments.BaseMovieFragment;
+
 public class ViewPagerAdapter extends FragmentPagerAdapter {
-    private final List<Fragment> mFragmentList = new ArrayList<>();
+    private final List<BaseMovieFragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
 
     public ViewPagerAdapter(FragmentManager fm) {
@@ -25,7 +27,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         return mFragmentList.size();
     }
 
-    public void addFragment(Fragment fragment, String title) {
+    public void addFragment(BaseMovieFragment fragment, String title) {
         mFragmentList.add(fragment);
         mFragmentTitleList.add(title);
     }
