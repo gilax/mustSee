@@ -82,6 +82,10 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
+        initRadio();
+
+
+        getSortBy();
 
         //if we're logged in and this is the first time running PreferencesActivity, go to Main
         //first if check if we got here from main, if not, don't show 'back' button in toolbar
@@ -131,10 +135,6 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
             }
         });
 
-        getSortBy();
-
-        initRadio();
-
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
             @Override
@@ -144,7 +144,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         });
 //        checkLogOutIntent(getIntent()); TODO what this should do?
     }
-    
+
     private void initRadio() {
         RadioButton title_rad = (RadioButton) findViewById(R.id.title_radio);
         RadioButton pop_rad = (RadioButton) findViewById(R.id.popularity_radio);
@@ -168,18 +168,24 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private void getSortBy() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id), Context.MODE_PRIVATE);
 
-        String type = new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
-//        SortBy type = new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), SortBy.class);
+        String type = sharedPref.getString(getString(R.string.userSortPick), "");
 
-        if (type != null && type.length() != 0) {
-            if (type.equals(SortBy.POPULARITY.getSortByValue()))
-                radioGroup.check(R.id.popularity_radio);
-            else if (type.equals(SortBy.TITLE.getSortByValue()))
+        if(type != null && type.length() != 0)
+        {
+            if(type.equals(SortBy.VOTE_AVERAGE.getSortByValue()))
+                radioGroup.check(R.id.vote_average_radio);
+            else if(type.equals(SortBy.TITLE.getSortByValue()))
                 radioGroup.check(R.id.title_radio);
             else
-                radioGroup.check(R.id.vote_average_radio);
+                radioGroup.check(R.id.popularity_radio);
+
         }
-//        String sortPick = sharedPref.getString(getString(R.string.userSortPick), "");
+        else
+        {
+            radioGroup.check(R.id.popularity_radio);
+            saveSortBy();
+        }
+
     }
 
     private void saveSortBy() {
@@ -190,10 +196,8 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         if (id != -1) {
             RadioButton button = (RadioButton)findViewById(id);
             String sortType = (String) button.getText();
-//            SortBy sortByValue = SortBy.valueOf((String) button.getText());
 
-            Gson gson = new Gson();
-            editor.putString(getString(R.string.userSortPick), gson.toJson(sortType) );
+            editor.putString(getString(R.string.userSortPick), sortType);
             editor.apply();
         }
     }

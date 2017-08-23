@@ -1,6 +1,10 @@
 package ac.huji.agapps.mustsee.fragments;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,8 +14,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,7 +50,7 @@ public class MovieCard extends DialogFragment {
 
     public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
-
+    private boolean isExpanded = false;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -80,8 +87,32 @@ public class MovieCard extends DialogFragment {
         mAge_restriction.setText("Age restriction: " + ((movie.getAdult()) ? "Yes" : "None"));
         mRatings.setText("Vote average: " + movie.getVoteAverage());
         mTrailer.setText("Trailer: " + ((movie.getAdult()) ? "Yes" : "None"));
-        mDescription.setText(movie.getOverview());
+        mDescription.setText("Description:\n" + movie.getOverview());
+
         mDescription.setMovementMethod(new ScrollingMovementMethod());
+        mDescription.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View view, MotionEvent event) {
+
+                if (view.getId() == R.id.movie_description) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction()&MotionEvent.ACTION_MASK){
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
+        mDescription.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                isExpanded = animateDescriptionExpand(isExpanded);
+            }
+        });
 
         ImageAPI.putPosterToView(getActivity(), movie, mPoster);
 
@@ -102,6 +133,47 @@ public class MovieCard extends DialogFragment {
         });
 
         return builder.create();
+    }
+
+
+    private boolean animateDescriptionExpand(boolean isExpand)
+    {
+
+        float size = pixelsToSp(getContext(), mDescription.getTextSize());
+        int animationSpeed = 200;
+        AnimatorSet animatorSet = new AnimatorSet();
+
+        float expandVal = 1.2f; //to shrink values
+        int new_lines = 4;
+        float newSize = size / expandVal;
+        float newAlpha = 1f;
+
+        if(!isExpand) //if not expanded, change to expand values
+        {
+            new_lines = 25;
+            newSize = size * expandVal;
+            newAlpha = 0f;
+        }
+
+        PropertyValuesHolder animLines = PropertyValuesHolder.ofInt("maxLines", new_lines);
+        PropertyValuesHolder textSize = PropertyValuesHolder.ofFloat("textSize", size, newSize);
+        ObjectAnimator animation = ObjectAnimator.ofPropertyValuesHolder(mDescription, animLines, textSize);
+        animation.setDuration(animationSpeed);
+
+        ObjectAnimator fadeCast = ObjectAnimator.ofFloat(mCast, "alpha", newAlpha).setDuration(animationSpeed);
+        ObjectAnimator fadeDirector = ObjectAnimator.ofFloat(mDirector, "alpha", newAlpha).setDuration(animationSpeed);
+        ObjectAnimator fadeTrailer = ObjectAnimator.ofFloat(mTrailer, "alpha", newAlpha).setDuration(animationSpeed);
+
+        animatorSet.play(animation).with(fadeCast);
+        animatorSet.play(animation).with(fadeDirector);
+        animatorSet.play(animation).with(fadeTrailer);
+        animatorSet.start();
+
+        return !isExpand;
+    }
+    public static float pixelsToSp(Context context, float px) {
+        float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+        return px/scaledDensity;
     }
 
     private class DetailedMovieAsyncTask extends AsyncTask<Integer, Void, DetailedMovie> {

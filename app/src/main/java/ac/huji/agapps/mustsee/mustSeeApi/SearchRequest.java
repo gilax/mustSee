@@ -15,4 +15,5 @@ public interface SearchRequest extends Serializable {
 
     @Nullable
     MovieSearchResults search(int pageNumber);
+
 }

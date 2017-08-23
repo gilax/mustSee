@@ -28,6 +28,8 @@ import ac.huji.agapps.mustsee.adapters.ViewPagerAdapter;
 import ac.huji.agapps.mustsee.fragments.AlreadyWatchedFragment;
 import ac.huji.agapps.mustsee.fragments.SearchFragment;
 import ac.huji.agapps.mustsee.fragments.WishlistFragment;
+import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
+import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
                 Context.MODE_PRIVATE);
 
-        return new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
+        return sharedPref.getString(getString(R.string.userSortPick), "");
 
     }
 
@@ -107,9 +109,20 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleApiClient.connect();
 
-        if (getSortBy() != null && !sortPick.equals(getSortBy())) {
-            //todo: find better way than full initialization
-//            setupViewPager(viewPager);
+        String newSortPick = getSortBy();
+        if(sortPick != null && !sortPick.equals(newSortPick))
+        {
+            // todo: find better way than full initialization
+            // setupViewPager(viewPager);
+
+            ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
+            SearchFragment searchFragment = (SearchFragment) adapter.getItem(0);
+            SearchRequest b = searchFragment.getSearchRequest();
+            if(b instanceof TopMoviesAPI)
+            {
+                searchFragment.performFirstSearch();
+            }
+            sortPick = newSortPick;
         }
 
         super.onStart();

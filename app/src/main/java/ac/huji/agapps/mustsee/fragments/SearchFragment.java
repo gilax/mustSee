@@ -2,11 +2,14 @@ package ac.huji.agapps.mustsee.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -36,6 +39,11 @@ public class SearchFragment extends BaseMovieFragment {
     private SearchMovieAdapter searchMovieAdapter;
     @Nullable
     private MovieSearchResults searchResults;
+
+    public SearchRequest getSearchRequest() {
+        return searchRequest;
+    }
+
     private SearchRequest searchRequest;
     private SearchAsyncTask currentTask;
 
@@ -159,8 +167,17 @@ public class SearchFragment extends BaseMovieFragment {
                 searchMovieAdapter.setLoaded();
                 return true;
             }
-            searchRequest = new TopMoviesAPI(getSortBy());
+
+            return performFirstSearch();
         }
+
+        return false;
+    }
+
+    public boolean performFirstSearch()
+    {
+        searchRequest = new TopMoviesAPI(getSortBy());
+
         assert searchResults != null;
         this.searchResults.reset();
         this.searchResults.addNullToResults();
