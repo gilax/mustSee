@@ -1,8 +1,6 @@
 package ac.huji.agapps.mustsee.fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -100,7 +98,7 @@ public class SearchFragment extends BaseMovieFragment {
         if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_REQUEST_KEY) != null) {
             searchRequest = (SearchRequest) savedInstanceState.getSerializable(SEARCH_REQUEST_KEY);
         } else {
-            searchRequest = new TopMoviesAPI(getSortBy());
+            searchRequest = new TopMoviesAPI(getContext());
         }
 
         if (savedInstanceState != null && savedInstanceState.getSerializable(SEARCH_RESULTS_KEY) != null) {
@@ -168,15 +166,15 @@ public class SearchFragment extends BaseMovieFragment {
                 return true;
             }
 
-            return performFirstSearch();
+            return performFirstSearch(true);
         }
-
-        return false;
+        return performFirstSearch(false);
     }
 
-    public boolean performFirstSearch()
+    public boolean performFirstSearch(boolean isInitNewTopMovies)
     {
-        searchRequest = new TopMoviesAPI(getSortBy());
+        if(isInitNewTopMovies)
+            searchRequest = new TopMoviesAPI(getContext());
 
         assert searchResults != null;
         this.searchResults.reset();
@@ -197,16 +195,6 @@ public class SearchFragment extends BaseMovieFragment {
         currentTask.execute(searchRequest);
     }
 
-    /**
-     * tries to retrieve user's sorting pick in shared preferences
-     */
-    private String getSortBy() {
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(getString(R.string.shared_pref_id),
-                Context.MODE_PRIVATE);
-
-        return new Gson().fromJson(sharedPref.getString(getString(R.string.userSortPick), ""), String.class);
-
-    }
 
     private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> implements Serializable {
 

@@ -32,6 +32,17 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         mFragmentTitleList.add(title);
     }
 
+    public void resetFragment(int index, String newTitle, BaseMovieFragment newFragment)
+    {
+        mFragmentTitleList.remove(index);
+        mFragmentList.remove(index);
+        mFragmentTitleList.add(index, newTitle);
+        mFragmentList.add(index, newFragment);
+
+    }
+
+
+
 
     @Override
     public CharSequence getPageTitle(int position) {
@@ -40,6 +51,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getItemPosition(Object object) {
-        return super.getItemPosition(object);
+        return POSITION_NONE;
     }
 }

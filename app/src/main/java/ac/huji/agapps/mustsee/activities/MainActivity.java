@@ -112,16 +112,13 @@ public class MainActivity extends AppCompatActivity {
         String newSortPick = getSortBy();
         if(sortPick != null && !sortPick.equals(newSortPick))
         {
-            // todo: find better way than full initialization
-            // setupViewPager(viewPager);
 
             ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
             SearchFragment searchFragment = (SearchFragment) adapter.getItem(0);
-            SearchRequest b = searchFragment.getSearchRequest();
-            if(b instanceof TopMoviesAPI)
-            {
-                searchFragment.performFirstSearch();
-            }
+            searchFragment.performFirstSearch(true);
+            //todo, perhaps trySearch is faster instead of perform search
+            adapter.notifyDataSetChanged();
+
             sortPick = newSortPick;
         }
 
