@@ -12,13 +12,6 @@ import java.io.Serializable;
 @SuppressWarnings("unused")
 public class Genre implements Serializable {
 
-    //todo remove constructor later:
-    public Genre(long id, String name)
-    {
-        this.mId = id;
-        this.mName = name;
-    }
-
     @Expose
     @SerializedName("id")
     private Long mId;

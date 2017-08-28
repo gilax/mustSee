@@ -35,7 +35,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.gson.Gson;
+
 import ac.huji.agapps.mustsee.R;
 
 public class PreferencesActivity extends AppCompatActivity implements  View.OnClickListener{
@@ -52,18 +52,24 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
     private RadioGroup radioGroup;
 
     private enum SortBy {
-        TITLE("original_title.desc"),
-        POPULARITY("popularity.desc"),
-        VOTE_AVERAGE("vote_average.desc");
+        TITLE("original_title.asc", "Title"),
+        POPULARITY("popularity.desc", "Popularity"),
+        VOTE_AVERAGE("vote_average.desc", "Rating");
 
         private String sortByValue;
+        private String sortByText;
 
-        SortBy(String sortByValue) {
+        SortBy(String sortByValue, String sortByText) {
             this.sortByValue = sortByValue;
+            this.sortByText = sortByText;
         }
 
-        public String getSortByValue() {
+        public String getValue() {
             return sortByValue;
+        }
+
+        public String getText() {
+            return sortByText;
         }
     }
 
@@ -150,9 +156,12 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         RadioButton pop_rad = (RadioButton) findViewById(R.id.popularity_radio);
         RadioButton vote_rad = (RadioButton) findViewById(R.id.vote_average_radio);
 
-        title_rad.setText(SortBy.TITLE.getSortByValue());
-        pop_rad.setText(SortBy.POPULARITY.getSortByValue());
-        vote_rad.setText(SortBy.VOTE_AVERAGE.getSortByValue());
+        title_rad.setTag(SortBy.TITLE.getValue());
+        title_rad.setText(SortBy.TITLE.getText());
+        pop_rad.setTag(SortBy.POPULARITY.getValue());
+        pop_rad.setText(SortBy.POPULARITY.getText());
+        vote_rad.setTag(SortBy.VOTE_AVERAGE.getValue());
+        vote_rad.setText(SortBy.VOTE_AVERAGE.getText());
     }
 
     @Override
@@ -170,22 +179,17 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
 
         String type = sharedPref.getString(getString(R.string.userSortPick), "");
 
-        if(type != null && type.length() != 0)
-        {
-            if(type.equals(SortBy.VOTE_AVERAGE.getSortByValue()))
+        if (type.length() != 0) {
+            if (type.equals(SortBy.VOTE_AVERAGE.getValue()))
                 radioGroup.check(R.id.vote_average_radio);
-            else if(type.equals(SortBy.TITLE.getSortByValue()))
+            else if (type.equals(SortBy.TITLE.getValue()))
                 radioGroup.check(R.id.title_radio);
             else
                 radioGroup.check(R.id.popularity_radio);
-
-        }
-        else
-        {
+        } else {
             radioGroup.check(R.id.popularity_radio);
             saveSortBy();
         }
-
     }
 
     private void saveSortBy() {
@@ -195,7 +199,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         int id = radioGroup.getCheckedRadioButtonId();
         if (id != -1) {
             RadioButton button = (RadioButton)findViewById(id);
-            String sortType = (String) button.getText();
+            String sortType = (String) button.getTag();
 
             editor.putString(getString(R.string.userSortPick), sortType);
             editor.apply();
@@ -295,7 +299,7 @@ public class PreferencesActivity extends AppCompatActivity implements  View.OnCl
         progressDialog.dismiss();
         if (user != null) {
             //user logged in, set log in button invisible
-            mStatusBar.setText(getString(R.string.user_status_bar) + user.getDisplayName());
+            mStatusBar.setText(String.format(getString(R.string.user_status_bar), user.getDisplayName()));
             mGoogleButton.setVisibility(View.GONE);
             mLogOutButton.setVisibility(View.VISIBLE);
             mLogOutButton.setText(R.string.log_out);

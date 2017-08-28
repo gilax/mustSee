@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import ac.huji.agapps.mustsee.fragments.BaseMovieFragment;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     private final List<BaseMovieFragment> mFragmentList = new ArrayList<>();
@@ -32,17 +32,12 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         mFragmentTitleList.add(title);
     }
 
-    public void resetFragment(int index, String newTitle, BaseMovieFragment newFragment)
-    {
+    public void resetFragment(int index, String newTitle, BaseMovieFragment newFragment) {
         mFragmentTitleList.remove(index);
         mFragmentList.remove(index);
         mFragmentTitleList.add(index, newTitle);
         mFragmentList.add(index, newFragment);
-
     }
-
-
-
 
     @Override
     public CharSequence getPageTitle(int position) {

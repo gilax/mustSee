@@ -1,33 +1,28 @@
-package ac.huji.agapps.mustsee.fragments;
-
+package ac.huji.agapps.mustsee.fragments.tabs;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
-
 import java.io.Serializable;
 
+import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.SearchMovieAdapter;
-import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
 import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
-public class SearchFragment extends BaseMovieFragment {
+public class SearchFragment extends BaseMovieFragment implements Serializable {
 
     private static final String SEARCH_RESULTS_KEY = "SearchResults";
     private static final String SEARCH_REQUEST_KEY = "SearchRequest";
@@ -121,7 +116,7 @@ public class SearchFragment extends BaseMovieFragment {
             searchResults.addNullToResults();
         }
 
-        searchMovieAdapter = new SearchMovieAdapter(recyclerView, this, (StaggeredGridLayoutManager) recyclerView.getLayoutManager(), searchResults);
+        searchMovieAdapter = new SearchMovieAdapter(recyclerView, this, (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), searchResults);
 
         if (isSearching && searchResults.lastResult() != null) {
             searchMovieAdapter.setLoaded();
@@ -192,27 +187,14 @@ public class SearchFragment extends BaseMovieFragment {
             currentTask.cancel(true);
         }
         currentTask = new SearchAsyncTask();
+        currentTask.setOnPostListener(onPostListener);
         currentTask.execute(searchRequest);
     }
 
 
-    private class SearchAsyncTask extends AsyncTask<SearchRequest, Void, MovieSearchResults> implements Serializable {
-
+    transient SearchAsyncTask.OnPostListener onPostListener = new SearchAsyncTask.OnPostListener() {
         @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected MovieSearchResults doInBackground(SearchRequest... search) {
-            if (search.length > 0 && search[0].haveNext() && !isCancelled())
-                return search[0].searchNext();
-            else
-                return null;
-        }
-
-        @Override
-        protected void onPostExecute(@Nullable MovieSearchResults searchResults) {
+        public void onPostExecute(@Nullable MovieSearchResults searchResults) {
             if (searchResults == null) {
                 // TODO handle case where there isn't results
                 searchMovieAdapter.setLoaded();
@@ -231,5 +213,5 @@ public class SearchFragment extends BaseMovieFragment {
             searchMovieAdapter.notifyDataSetChanged();
             currentTask = null;
         }
-    }
+    };
 }

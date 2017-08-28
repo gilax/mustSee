@@ -1,8 +1,7 @@
-package ac.huji.agapps.mustsee.fragments;
+package ac.huji.agapps.mustsee.fragments.tabs;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,7 @@ import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.adapters.AlreadyWatchedMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class AlreadyWatchedFragment extends BaseMovieFragment {
 
@@ -69,7 +69,7 @@ public class AlreadyWatchedFragment extends BaseMovieFragment {
         }
 
         return new AlreadyWatchedMovieAdapter(recyclerView, this,
-                (StaggeredGridLayoutManager) recyclerView.getLayoutManager(), alreadyWatchedResults);
+                (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), alreadyWatchedResults);
     }
 
     @Override

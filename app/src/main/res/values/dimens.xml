@@ -18,5 +18,4 @@
     <dimen name="image_height">147dp</dimen>
     <dimen name="full_card_poster_width">122dp</dimen>
     <dimen name="full_card_poster_height">184dp</dimen>
-
 </resources>

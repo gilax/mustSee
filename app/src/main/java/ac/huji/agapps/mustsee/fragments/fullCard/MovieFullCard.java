@@ -1,37 +1,43 @@
-package ac.huji.agapps.mustsee.fragments;
+package ac.huji.agapps.mustsee.fragments.fullCard;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.FrameLayout;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+
+import ac.huji.agapps.mustsee.BuildConfig;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
-import ac.huji.agapps.mustsee.mustSeeApi.MovieDetailsAPI;
+import ac.huji.agapps.mustsee.mustSeeApi.MovieTrailerAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.videosClasses.MovieVideoResults;
 
-public class MovieCard extends DialogFragment {
+public abstract class MovieFullCard extends DialogFragment {
 
     // private members for the full card display
     private ImageView mPoster;
@@ -40,21 +46,21 @@ public class MovieCard extends DialogFragment {
     private TextView mLength;
     private TextView mGenre;
     private TextView mRatings;
-    private TextView mTrailer;
     private TextView mDescription;
     private TextView mCast;
     private TextView mDirector;
-    private FrameLayout mTrailerFrame;
+    private Button mTrailerButton;
 
     private Result movie;
 
     public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
     private boolean isExpanded = false;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.movie_full_card, null);
+        return inflater.inflate(R.layout.movie_full_card, container);
     }
 
     @NonNull
@@ -74,26 +80,23 @@ public class MovieCard extends DialogFragment {
         mLength = (TextView) view.findViewById(R.id.movie_length);
         mGenre = (TextView) view.findViewById(R.id.genre);
         mRatings = (TextView) view.findViewById(R.id.ratings);
-        mTrailer= (TextView) view.findViewById(R.id.trailer);
         mDescription = (TextView) view.findViewById(R.id.movie_description);
         mCast = (TextView) view.findViewById(R.id.movie_cast);
         mDirector = (TextView) view.findViewById(R.id.movie_director);
-        mTrailerFrame = (FrameLayout) view.findViewById(R.id.youtube_player_frame);
+        mTrailerButton = (Button) view.findViewById(R.id.youtube_player_button);
 
-        DetailedMovieAsyncTask task = new DetailedMovieAsyncTask();
+        DetailedMovieAsyncTask task = getDetailedMovieAsyncTask();
         task.execute(movie.getId().intValue());
 
         mTitle.setText(movie.getTitle());
-        mAge_restriction.setText("Age restriction: " + ((movie.getAdult()) ? "Yes" : "None"));
-        mRatings.setText("Vote average: " + movie.getVoteAverage());
-        mTrailer.setText("Trailer: " + ((movie.getAdult()) ? "Yes" : "None"));
-        mDescription.setText("Description:\n" + movie.getOverview());
+        mAge_restriction.setText(String.format("Age restriction: %s", (movie.getAdult()) ? "Yes" : "None"));
+        mRatings.setText(String.format("Vote average: %s", movie.getVoteAverage()));
+        mDescription.setText(String.format("Description:\n%s", movie.getOverview()));
 
         mDescription.setMovementMethod(new ScrollingMovementMethod());
         mDescription.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, MotionEvent event) {
-
                 if (view.getId() == R.id.movie_description) {
                     view.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction()&MotionEvent.ACTION_MASK){
@@ -109,7 +112,6 @@ public class MovieCard extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-
                 isExpanded = animateDescriptionExpand(isExpanded);
             }
         });
@@ -118,26 +120,12 @@ public class MovieCard extends DialogFragment {
 
         builder.setView(view);
 
-        builder.setPositiveButton("Add", new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                MainActivity.dataBase.writeMovieToMustSeeListForUser(movie);
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        setDialogButtons(builder, movie);
 
         return builder.create();
     }
 
-
-    private boolean animateDescriptionExpand(boolean isExpand)
-    {
+    private boolean animateDescriptionExpand(boolean isExpand) {
 
         float size = pixelsToSp(getContext(), mDescription.getTextSize());
         int animationSpeed = 200;
@@ -148,8 +136,7 @@ public class MovieCard extends DialogFragment {
         float newSize = size / expandVal;
         float newAlpha = 1f;
 
-        if(!isExpand) //if not expanded, change to expand values
-        {
+        if (!isExpand) { //if not expanded, change to expand values
             new_lines = 25;
             newSize = size * expandVal;
             newAlpha = 0f;
@@ -162,21 +149,22 @@ public class MovieCard extends DialogFragment {
 
         ObjectAnimator fadeCast = ObjectAnimator.ofFloat(mCast, "alpha", newAlpha).setDuration(animationSpeed);
         ObjectAnimator fadeDirector = ObjectAnimator.ofFloat(mDirector, "alpha", newAlpha).setDuration(animationSpeed);
-        ObjectAnimator fadeTrailer = ObjectAnimator.ofFloat(mTrailer, "alpha", newAlpha).setDuration(animationSpeed);
 
         animatorSet.play(animation).with(fadeCast);
         animatorSet.play(animation).with(fadeDirector);
-        animatorSet.play(animation).with(fadeTrailer);
         animatorSet.start();
 
         return !isExpand;
     }
+
     public static float pixelsToSp(Context context, float px) {
         float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
         return px/scaledDensity;
     }
 
-    private class DetailedMovieAsyncTask extends AsyncTask<Integer, Void, DetailedMovie> {
+    protected abstract DetailedMovieAsyncTask getDetailedMovieAsyncTask();
+
+    abstract class DetailedMovieAsyncTask extends AsyncTask<Integer, Void, DetailedMovie> {
 
         @Override
         protected void onPreExecute() {
@@ -185,19 +173,10 @@ public class MovieCard extends DialogFragment {
             mLength.setVisibility(View.GONE);
             mCast.setVisibility(View.GONE);
             mGenre.setVisibility(View.GONE);
-            mTrailerFrame.setVisibility(View.GONE);
+            mTrailerButton.setVisibility(View.GONE);
         }
 
-        @Override
-        protected DetailedMovie doInBackground(Integer... params) {
-            if (params.length > 0) {
-                return new MovieDetailsAPI().getMovieDetails(params[0]);
-            } else
-                return null;
-        }
-
-        @Override
-        protected void onPostExecute(DetailedMovie detailedMovie) {
+        void doWhenFinished(DetailedMovie detailedMovie) {
             if (detailedMovie != null) {
                 mCast.setVisibility(View.VISIBLE);
                 mCast.setText("Cast: " + TODO);
@@ -216,13 +195,143 @@ public class MovieCard extends DialogFragment {
                         } else
                             genres += ", " + genre.getName();
                     }
-                    mGenre.setText("Genre: " + genres);
+                    mGenre.setText(String.format("Genre: %s", genres));
                 }
                 mDirector.setVisibility(View.VISIBLE);
                 mDirector.setText("Director: " + TODO);
-                detailedMovie.attachTrailerPlayer(MovieCard.this, mTrailerFrame, R.id.youtube_player_frame);
+//                mTrailerButton.setVisibility(View.VISIBLE); // TODO uncomment when issue with youtube is fixed
+                attachTrailerPlayer(detailedMovie);
+                // TODO case we want to add a loading dialog - stop
             }
-            // TODO case we want to add a loading dialog - stop
         }
     }
+
+    public void attachTrailerPlayer(DetailedMovie detailedMovie) {
+        if (detailedMovie.getYouTubeId().length() == 0) {
+            new TrailerAsyncTask().execute(detailedMovie);
+        } else {
+            setYouTubeFragment(detailedMovie);
+        }
+    }
+
+    private void setYouTubeFragment(final DetailedMovie detailedMovie) {
+        final YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
+
+        youTubePlayerFragment.initialize(BuildConfig.YOU_TUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
+            @Override
+            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
+                player.setPlayerStateChangeListener(new TrailerEventListener());
+                player.setPlaybackEventListener(new TrailerEventListener());
+                if (!wasRestored) {
+                    player.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
+                    player.setFullscreen(true);
+                    ((MainActivity)MovieFullCard.this.getActivity()).youTubePlayer = player;
+                    player.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
+                        @Override
+                        public void onFullscreen(boolean isFullScreen) {
+                            ((MainActivity)MovieFullCard.this.getActivity()).trailerFullScreen = isFullScreen;
+                        }
+                    });
+                    player.cueVideo(detailedMovie.getYouTubeId());
+                }
+            }
+
+            @Override
+            public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+                Log.e(TAG, "Failed to Initialize!");
+            }
+        });
+
+        mTrailerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = MovieFullCard.this.getChildFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(TAG);
+                fragmentTransaction.add(youTubePlayerFragment, TAG).commit();
+            }
+        });
+    }
+
+    private class TrailerEventListener implements YouTubePlayer.PlaybackEventListener, YouTubePlayer.PlayerStateChangeListener {
+        @Override
+        public void onPlaying() {
+
+        }
+
+        @Override
+        public void onPaused() {
+
+        }
+
+        @Override
+        public void onStopped() {
+
+        }
+
+        @Override
+        public void onBuffering(boolean b) {
+
+        }
+
+        @Override
+        public void onSeekTo(int i) {
+
+        }
+
+        @Override
+        public void onLoading() {
+
+        }
+
+        @Override
+        public void onLoaded(String s) {
+
+        }
+
+        @Override
+        public void onAdStarted() {
+
+        }
+
+        @Override
+        public void onVideoStarted() {
+
+        }
+
+        @Override
+        public void onVideoEnded() {
+
+        }
+
+        @Override
+        public void onError(YouTubePlayer.ErrorReason errorReason) {
+
+        }
+    }
+
+    private class TrailerAsyncTask extends AsyncTask<DetailedMovie, Void, MovieVideoResults> {
+
+        private static final String YOUTUBE = "YouTube";
+
+        private DetailedMovie detailedMovie;
+
+        @Override
+        protected MovieVideoResults doInBackground(DetailedMovie... params) {
+            if (params.length > 0) {
+                this.detailedMovie = params[0];
+                return (new MovieTrailerAPI()).getMovieVideos(params[0].getId().intValue());
+            } else
+                return null;
+        }
+
+        @Override
+        protected void onPostExecute(final MovieVideoResults results) {
+            if (results != null && results.getResults().size() > 0 && results.getResults().get(0).getSite().equals(YOUTUBE)) {
+                this.detailedMovie.setYouTubeId(results.getResults().get(0).getKey());
+                setYouTubeFragment(detailedMovie);
+            }
+        }
+    }
+
+    public abstract void setDialogButtons(AlertDialog.Builder builder, Result movie);
 }

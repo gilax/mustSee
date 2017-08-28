@@ -2,22 +2,24 @@ package ac.huji.agapps.mustsee.adapters;
 
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.MenuInflater;
 import android.view.View;
 
 import java.util.ArrayList;
 
 import ac.huji.agapps.mustsee.activities.MainActivity;
-import ac.huji.agapps.mustsee.fragments.BaseMovieFragment;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
+import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
+import ac.huji.agapps.mustsee.fragments.fullCard.WishlistMovieFullCard;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class WishlistMovieAdapter extends BaseMovieAdapter {
 
     private ArrayList<Result> results;
     private boolean isAtStart = true;
 
-    public WishlistMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment, StaggeredGridLayoutManager layoutManager, ArrayList<Result> wishlistResults) {
+    public WishlistMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment, MovieStaggeredGridLayoutManager layoutManager, ArrayList<Result> wishlistResults) {
         super(recyclerView, fragment, layoutManager);
         this.results = wishlistResults;
     }
@@ -43,6 +45,11 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
     @Override
     protected Result getMovie(int position) {
         return results.get(position);
+    }
+
+    @Override
+    protected MovieFullCard getFullCard() {
+        return new WishlistMovieFullCard();
     }
 
     @Override

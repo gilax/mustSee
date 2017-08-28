@@ -3,15 +3,17 @@ package ac.huji.agapps.mustsee.adapters;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
 import ac.huji.agapps.mustsee.R;
-import ac.huji.agapps.mustsee.fragments.BaseMovieFragment;
+import ac.huji.agapps.mustsee.fragments.fullCard.SearchMovieFullCard;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
+import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class SearchMovieAdapter extends BaseMovieAdapter{
 
@@ -19,7 +21,7 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
     private MovieSearchResults searchResults;
 
     public SearchMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment,
-                              final StaggeredGridLayoutManager layoutManager, @Nullable MovieSearchResults results) {
+                              final MovieStaggeredGridLayoutManager layoutManager, @Nullable MovieSearchResults results) {
         super(recyclerView, fragment, layoutManager);
         this.searchResults = results;
     }
@@ -36,6 +38,11 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
     protected Result getMovie(int position) {
         assert searchResults != null;
         return searchResults.getResults().get(position);
+    }
+
+    @Override
+    protected MovieFullCard getFullCard() {
+        return new SearchMovieFullCard();
     }
 
     @Override

@@ -1,10 +1,9 @@
-package ac.huji.agapps.mustsee.fragments;
+package ac.huji.agapps.mustsee.fragments.tabs;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +19,7 @@ import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.WishlistMovieAdapter;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class WishlistFragment extends BaseMovieFragment {
 
@@ -119,7 +119,7 @@ public class WishlistFragment extends BaseMovieFragment {
             wishlistResults = new ArrayList<>();
         }
 
-        return new WishlistMovieAdapter(recyclerView, this, (StaggeredGridLayoutManager) recyclerView.getLayoutManager(), wishlistResults);
+        return new WishlistMovieAdapter(recyclerView, this, (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), wishlistResults);
     }
 
     public void addMovieToMustSeeList(Result movie) {

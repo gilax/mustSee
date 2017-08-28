@@ -20,16 +20,14 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
+import com.google.android.youtube.player.YouTubePlayer;
 
 import ac.huji.agapps.mustsee.MovieDataBase;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.adapters.ViewPagerAdapter;
-import ac.huji.agapps.mustsee.fragments.AlreadyWatchedFragment;
-import ac.huji.agapps.mustsee.fragments.SearchFragment;
-import ac.huji.agapps.mustsee.fragments.WishlistFragment;
-import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
-import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
+import ac.huji.agapps.mustsee.fragments.tabs.AlreadyWatchedFragment;
+import ac.huji.agapps.mustsee.fragments.tabs.SearchFragment;
+import ac.huji.agapps.mustsee.fragments.tabs.WishlistFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,9 +43,11 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser user;
     private String sortPick;
 
+    public YouTubePlayer youTubePlayer;
+    public boolean trailerFullScreen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager(viewPager);
         getUserName();
         sortPick = getSortBy();
-
     }
 
     /**
@@ -95,9 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 Context.MODE_PRIVATE);
 
         return sharedPref.getString(getString(R.string.userSortPick), "");
-
     }
-
 
     @Override
     protected void onStart() {
@@ -110,9 +107,7 @@ public class MainActivity extends AppCompatActivity {
         mGoogleApiClient.connect();
 
         String newSortPick = getSortBy();
-        if(sortPick != null && !sortPick.equals(newSortPick))
-        {
-
+        if (sortPick != null && !sortPick.equals(newSortPick)) {
             ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
             SearchFragment searchFragment = (SearchFragment) adapter.getItem(0);
             searchFragment.performFirstSearch(true);
@@ -132,6 +127,14 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        if (trailerFullScreen) {
+            youTubePlayer.setFullscreen(false);
+        } else
+            super.onBackPressed();
+    }
+
     /**
      * gets name of user using shared preferences (saved when signing in)
      */
@@ -140,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
                 Context.MODE_PRIVATE);
         return sharedPref.getString(getString(R.string.userName), "");
     }
-
 
     /**
     buttons in the menu

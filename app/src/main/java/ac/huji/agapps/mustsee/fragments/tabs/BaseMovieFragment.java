@@ -1,11 +1,10 @@
-package ac.huji.agapps.mustsee.fragments;
+package ac.huji.agapps.mustsee.fragments.tabs;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import java.io.Serializable;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public abstract class BaseMovieFragment extends Fragment implements Serializable {
 
@@ -33,8 +33,8 @@ public abstract class BaseMovieFragment extends Fragment implements Serializable
         recyclerView = (RecyclerView) fragment.findViewById(R.id.recycler_movie);
 
         int numberOfColumns = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) ? 1 : 2;
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy((numberOfColumns == 1) ? StaggeredGridLayoutManager.GAP_HANDLING_NONE : StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        MovieStaggeredGridLayoutManager layoutManager = new MovieStaggeredGridLayoutManager(numberOfColumns, MovieStaggeredGridLayoutManager.VERTICAL);
+        layoutManager.setGapStrategy((numberOfColumns == 1) ? MovieStaggeredGridLayoutManager.GAP_HANDLING_NONE : MovieStaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         recyclerView.setLayoutManager(layoutManager);
 
         movieAdapter = createAdapter(savedInstanceState);

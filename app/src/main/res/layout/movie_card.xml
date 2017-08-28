@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|right"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_add_black_24dp"
+            android:src="@drawable/ic_add"
             app:backgroundTint="@android:color/white"
             android:alpha="0.6"
             app:backgroundTintMode="src_over"

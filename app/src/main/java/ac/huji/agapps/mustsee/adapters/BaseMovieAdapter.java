@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -22,10 +21,11 @@ import java.util.Arrays;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
-import ac.huji.agapps.mustsee.fragments.BaseMovieFragment;
-import ac.huji.agapps.mustsee.fragments.MovieCard;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
+import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements Serializable {
 
@@ -35,7 +35,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     final int VIEW_TYPE_LOADING = 1;
 
     protected BaseMovieFragment fragment;
-    private StaggeredGridLayoutManager layoutManager;
+    private MovieStaggeredGridLayoutManager layoutManager;
 
     @Nullable
     private OnLoadMoreListener onLoadMoreListener;
@@ -89,7 +89,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
         }
     }
 
-    BaseMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment, StaggeredGridLayoutManager layoutManager) {
+    BaseMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment, MovieStaggeredGridLayoutManager layoutManager) {
         this.fragment = fragment;
         this.layoutManager = layoutManager;
 
@@ -155,14 +155,14 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             movieHolder.card.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentTransaction fragmentTransaction = fragment.getChildFragmentManager().beginTransaction().addToBackStack("");
+                    FragmentTransaction fragmentTransaction = fragment.getChildFragmentManager().beginTransaction();
                     Bundle args = new Bundle();
                     args.putParcelable("movie", movie);
-                    MovieCard movieCard = new MovieCard();
+                    MovieFullCard movieFullCard = getFullCard();
 
-                    movieCard.setArguments(args);
+                    movieFullCard.setArguments(args);
 
-                    movieCard.show(fragmentTransaction, "");
+                    movieFullCard.show(fragmentTransaction, "");
                 }
             });
         } else if (holder instanceof LoadingViewHolder) {
@@ -218,6 +218,8 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     protected abstract void onFloatingButtonClick(Result movie);
 
     protected abstract Result getMovie(int position);
+
+    protected abstract MovieFullCard getFullCard();
 
     @Override
     public abstract int getItemViewType(int position);
