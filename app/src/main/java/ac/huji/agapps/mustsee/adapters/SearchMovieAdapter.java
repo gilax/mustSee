@@ -1,11 +1,36 @@
 package ac.huji.agapps.mustsee.adapters;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.content.Context;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.Display;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+import android.widget.TextSwitcher;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.fragments.fullCard.SearchMovieFullCard;
@@ -46,24 +71,6 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
     }
 
     @Override
-    protected void onCreatePopupMenu(View overflow, PopupMenu menu, MenuInflater inflater, final Result movie) {
-        inflater.inflate(R.menu.menu_movie_card, menu.getMenu());
-        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.add_to_wishlist:
-                        onFloatingButtonClick(movie);
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-        menu.show();
-    }
-
-    @Override
     public int getItemCount() {
         return (searchResults == null) ? 0 : searchResults.getResults().size();
     }
@@ -76,8 +83,39 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
             return this.searchResults.addResults(searchResults);
     }
 
+
     @Override
-    protected void onFloatingButtonClick(Result movie) {
+    protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
+
+        final FloatingActionButton button = movieViewHolder.mainFunction;
+
+
         getMainActivity().wishlistFragment.addMovieToMustSeeList(movie);
+
+        Animation shrink_animation = AnimationUtils.loadAnimation(fragment.getContext(), R.anim.shrink);
+        final Animation expand_animation = AnimationUtils.loadAnimation(fragment.getContext(), R.anim.expand);
+
+        Interpolator interpolator = new AccelerateDecelerateInterpolator();
+        shrink_animation.setInterpolator(interpolator);
+        expand_animation.setInterpolator(interpolator);
+
+        shrink_animation.setAnimationListener(new Animation.AnimationListener(){
+            @Override
+            public void onAnimationStart(Animation arg0) {
+            }
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+            }
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                button.startAnimation(expand_animation);
+            }
+        });
+
+        button.startAnimation(shrink_animation);
+
+        String msg = fragment.getContext().getString(R.string.fab_pressed) + movieViewHolder.title.getText();
+        Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
+
     }
 }

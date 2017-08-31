@@ -1,5 +1,7 @@
 package ac.huji.agapps.mustsee.adapters;
 
+import android.content.Context;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -8,10 +10,13 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -127,7 +132,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof MovieViewHolder) {
             final Result movie = getMovie(position);
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
@@ -140,7 +145,6 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
                 public void onClick(View v) {
                     PopupMenu menu = new PopupMenu(fragment.getContext(), movieHolder.overflow);
                     MenuInflater inflater = menu.getMenuInflater();
-                    onCreatePopupMenu(movieHolder.overflow, menu, inflater, movie);
                 }
             });
 
@@ -148,7 +152,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             movieHolder.mainFunction.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onFloatingButtonClick(movie);
+                    onFloatingButtonClick(movie, movieHolder, position);
                 }
             });
 
@@ -186,6 +190,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
         }
     }
 
+
     public void setOnLoadMoreListener(@Nullable OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
     }
@@ -213,9 +218,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
 
     // abstract methods
 
-    protected abstract void onCreatePopupMenu(View overflow, PopupMenu menu, MenuInflater inflater, final Result movie);
-
-    protected abstract void onFloatingButtonClick(Result movie);
+    protected abstract void onFloatingButtonClick(Result movie, MovieViewHolder movieHolder, int position);
 
     protected abstract Result getMovie(int position);
 

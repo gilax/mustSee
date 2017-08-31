@@ -37,6 +37,7 @@
     <string name="remove_all_mustSee_alert_message">Are you sure you want to remove all the movies from your Must See list?\n(notice: this action will affect all of your devices)</string>
     <string name="remove_all_mustSee_alert_negative_button">Cancel</string>
     <string name="remove_all_mustSee_alert_positive_button">Delete</string>
+    <string name="fab_pressed">Added </string>
 
     <string name="full_card_already_watched_possitive_button">Move back to Wishlist</string>
     <string name="full_card_search_possitive_button">Add to wishlist</string>

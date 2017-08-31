@@ -25,16 +25,14 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
     }
 
     @Override
-    protected void onCreatePopupMenu(View overflow, PopupMenu menu, MenuInflater inflater, Result movie) {
-
-    }
-
-    @Override
-    protected void onFloatingButtonClick(Result movie) {
+    protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
         MainActivity.dataBase.deleteMovieFromMustSeeListForUser(movie.getId().intValue());
         getMainActivity().alreadyWatchedFragment.addMovieToAlreadyWatchedList(movie);
         results.remove(movie);
-        notifyDataSetChanged();
+
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, getItemCount());
+//        notifyDataSetChanged();
     }
 
     @Override

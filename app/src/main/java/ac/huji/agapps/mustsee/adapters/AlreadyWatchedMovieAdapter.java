@@ -25,17 +25,18 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
         this.results = results;
     }
 
-    @Override
-    protected void onCreatePopupMenu(View overflow, PopupMenu menu, MenuInflater inflater, Result movie) {
 
-    }
+
 
     @Override
-    protected void onFloatingButtonClick(Result movie) {
+    protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
         MainActivity.dataBase.deleteMovieFromAlreadyWatchedListForUser(movie.getId().intValue());
         getMainActivity().wishlistFragment.addMovieToMustSeeList(movie);
         results.remove(movie);
-        notifyDataSetChanged();
+
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, getItemCount());
+//        notifyDataSetChanged();
     }
 
     @Override

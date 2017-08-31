@@ -19,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,6 +55,12 @@ public abstract class MovieFullCard extends DialogFragment {
 
     private Result movie;
 
+    public final String castKey = "cast";
+    public final String lengthKey = "length";
+    public final String genreKey = "genre";
+    public final String directorKey = "director";
+
+
     public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
     private boolean isExpanded = false;
@@ -85,8 +93,19 @@ public abstract class MovieFullCard extends DialogFragment {
         mDirector = (TextView) view.findViewById(R.id.movie_director);
         mTrailerButton = (Button) view.findViewById(R.id.youtube_player_button);
 
-        DetailedMovieAsyncTask task = getDetailedMovieAsyncTask();
-        task.execute(movie.getId().intValue());
+        if(savedInstanceState != null)
+        {
+            //cast, length, genre, director
+            mCast.setText(savedInstanceState.getString(castKey));
+            mLength.setText(savedInstanceState.getString(lengthKey));
+            mGenre.setText(savedInstanceState.getString(genreKey));
+            mDirector.setText(savedInstanceState.getString(directorKey));
+        }
+        else
+        {
+            DetailedMovieAsyncTask task = getDetailedMovieAsyncTask();
+            task.execute(movie.getId().intValue());
+        }
 
         mTitle.setText(movie.getTitle());
         mAge_restriction.setText(String.format("Age restriction: %s", (movie.getAdult()) ? "Yes" : "None"));
@@ -153,6 +172,7 @@ public abstract class MovieFullCard extends DialogFragment {
         animatorSet.play(animation).with(fadeCast);
         animatorSet.play(animation).with(fadeDirector);
         animatorSet.start();
+//        animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
 
         return !isExpand;
     }
@@ -160,6 +180,16 @@ public abstract class MovieFullCard extends DialogFragment {
     public static float pixelsToSp(Context context, float px) {
         float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
         return px/scaledDensity;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //cast, length, genre, director
+        outState.putString(castKey, (String) mCast.getText());
+        outState.putString(lengthKey, (String) mLength.getText());
+        outState.putString(genreKey, (String) mGenre.getText());
+        outState.putString(directorKey, (String) mDirector.getText());
     }
 
     protected abstract DetailedMovieAsyncTask getDetailedMovieAsyncTask();
