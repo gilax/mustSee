@@ -15,7 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
@@ -50,8 +52,8 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
         TextView title;
         FloatingActionButton mainFunction;
         TextView rating;
+        TextView genres;
         CardView card;
-
 
         MovieViewHolder(View itemView) {
             super(itemView);
@@ -60,10 +62,20 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             poster = (ImageView) itemView.findViewById(R.id.movie_poster);
             mainFunction = (FloatingActionButton) itemView.findViewById(R.id.movie_card_button);
             rating = (TextView) itemView.findViewById(R.id.movie_rating);
+            genres = (TextView) itemView.findViewById(R.id.movie_genres_list);
         }
 
         void addRate(Double voteAverage) {
             rating.setText(String.format(rating.getContext().getString(R.string.rating_title), (double)voteAverage));
+        }
+
+        void addGenres(List<String> genresTexts) {
+            String toGenres = "Genres: ";
+            for (int i = 0; i < genresTexts.size() - 1; i++) {
+                toGenres += genresTexts.get(i) + ", ";
+            }
+            toGenres += genresTexts.get(genresTexts.size() - 1);
+            genres.setText(toGenres);
         }
 
         void changeFloatingButtonIcon(int resourceId) {
@@ -123,7 +135,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MovieViewHolder) {
             final Result movie = getMovie(position);
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
@@ -135,7 +147,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             movieHolder.mainFunction.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onFloatingButtonClick(movie, movieHolder, position);
+                    onFloatingButtonClick(movie, movieHolder, holder.getAdapterPosition());
                 }
             });
 
@@ -155,6 +167,14 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
 
             movieHolder.card.setOnClickListener(openFullCard);
             movieHolder.poster.setOnClickListener(openFullCard);
+
+            if (MainActivity.dataBase.genresMap.size() != 0 && movie.getGenreIds().size()!= 0) {
+                List<String> movieGenresList = new ArrayList<>();
+                for (Long movieGenre : movie.getGenreIds()) {
+                    movieGenresList.add(MainActivity.dataBase.genresMap.get(movieGenre.intValue()));
+                }
+                movieHolder.addGenres(movieGenresList);
+            }
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingHolder = (LoadingViewHolder) holder;
             loadingHolder.progressBar.setIndeterminate(true);

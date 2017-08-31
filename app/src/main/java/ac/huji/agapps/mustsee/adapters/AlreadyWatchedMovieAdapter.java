@@ -59,10 +59,10 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
 
     @Override
     public int getItemCount() {
-        if (atStart) {
+        if (atStart)
             return 1;
-        }
-        return results.size();
+        else
+            return results.size();
     }
 
     public void setAtStart(boolean isAtStart) {

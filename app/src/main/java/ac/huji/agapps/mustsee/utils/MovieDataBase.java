@@ -3,6 +3,7 @@ package ac.huji.agapps.mustsee.utils;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 
 import ac.huji.agapps.mustsee.mustSeeApi.MovieDetailsAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
+import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genre;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Genres;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
@@ -36,6 +38,8 @@ public class MovieDataBase {
     private DatabaseReference usersRef;
     private DatabaseReference detailedMoviesRef;
 
+    public SparseArray<String> genresMap = new SparseArray<>();
+
     public MovieDataBase() {
         FirebaseDatabase firebase = FirebaseDatabase.getInstance();
         firebase.setPersistenceEnabled(true);
@@ -52,13 +56,17 @@ public class MovieDataBase {
         genresRef.setValue(genres);
     }
 
-    public void readGenres(final OnGenresLoadedListener onGenresLoadedListener) {
+    public void readGenres() {
         genresRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Genres is reading...");
                 Genres readGenres = dataSnapshot.getValue(Genres.class);
-                onGenresLoadedListener.onGenresLoaded(readGenres);
+                if (readGenres != null && readGenres.getGenres() != null && readGenres.getGenres().size() != 0) {
+                    for (Genre genre : readGenres.getGenres()) {
+                        genresMap.put(genre.getId().intValue(), genre.getName());
+                    }
+                }
             }
 
             @Override
@@ -128,7 +136,7 @@ public class MovieDataBase {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.d(TAG, "Must See list is reading...");
-                    ArrayList<Result> mustSeeList = new ArrayList<Result>();
+                    ArrayList<Result> mustSeeList = new ArrayList<>();
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         mustSeeList.add(data.getValue(Result.class));
                     }
@@ -161,7 +169,7 @@ public class MovieDataBase {
 
     /* Detailed Movie */
 
-    public void writeDetailedMovie(DetailedMovie detailedMovie) {
+    private void writeDetailedMovie(DetailedMovie detailedMovie) {
         int movieId = detailedMovie.getId().intValue();
         detailedMoviesRef.child(String.valueOf(movieId)).setValue(detailedMovie);
     }
@@ -214,7 +222,7 @@ public class MovieDataBase {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.d(TAG, "Already Watched list is reading...");
-                    ArrayList<Result> AlreadyWatchedList = new ArrayList<Result>();
+                    ArrayList<Result> AlreadyWatchedList = new ArrayList<>();
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         AlreadyWatchedList.add(data.getValue(Result.class));
                     }
@@ -247,7 +255,7 @@ public class MovieDataBase {
         void onGenresLoaded(@Nullable Genres loadedGenres);
     }
 
-    public interface OnMovieSearchResultsLoadedListener {
+    interface OnMovieSearchResultsLoadedListener {
         void onMovieSearchResultsLoaded(@Nullable MovieSearchResults loadedSearchResults);
     }
 

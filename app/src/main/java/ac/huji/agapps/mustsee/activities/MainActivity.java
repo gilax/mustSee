@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dataBase.readGenres();
+
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
 
