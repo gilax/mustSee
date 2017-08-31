@@ -32,10 +32,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static MovieDataBase dataBase = new MovieDataBase();
 
-    SearchFragment searchFragment;
-    public WishlistFragment wishlistFragment;
-    public AlreadyWatchedFragment alreadyWatchedFragment;
+    public static final int SEARCH_FRAGMENT_INDEX = 0;
+    public static final int WISHLIST_FRAGMENT_INDEX = 1;
+    public static final int ALREADY_WATCHED_FRAGMENT_INDEX = 2;
 
+    private ViewPagerAdapter viewPagerAdapter;
     private ViewPager viewPager;
     private FirebaseUser user;
     private String sortPick;
@@ -94,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSignedIn() {
                 user = FirebaseAuth.getInstance().getCurrentUser();
-                wishlistFragment.reset();
-                alreadyWatchedFragment.reset();
+                getWishlistFragment().reset();
+                getAlreadyWatchedFragment().reset();
                 if (PreferencesUtil.getSortBy(MainActivity.this).length() == 0) {
                     PreferencesUtil.setSortBy(MainActivity.this, null);
                 }
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onChooseSortBy(String chosenSortPick) {
                         if (sortPick != null && !sortPick.equals(chosenSortPick)) {
                             ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
-                            searchFragment.performFirstSearch(true);
+                            getSearchFragment().performFirstSearch(true);
                             adapter.notifyDataSetChanged();
 
                             sortPick = chosenSortPick;
@@ -180,16 +181,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        searchFragment = new SearchFragment();
-        wishlistFragment = new WishlistFragment();
-        alreadyWatchedFragment = new AlreadyWatchedFragment();
+        SearchFragment searchFragment = new SearchFragment();
+        WishlistFragment wishlistFragment = new WishlistFragment();
+        AlreadyWatchedFragment alreadyWatchedFragment = new AlreadyWatchedFragment();
 
-        adapter.addFragment(searchFragment, getString(R.string.search));
-        adapter.addFragment(wishlistFragment, getString(R.string.wishlist));
-        adapter.addFragment(alreadyWatchedFragment, getString(R.string.already_watched));
+        viewPagerAdapter.addFragment(searchFragment, getString(R.string.search));
+        viewPagerAdapter.addFragment(wishlistFragment, getString(R.string.wishlist));
+        viewPagerAdapter.addFragment(alreadyWatchedFragment, getString(R.string.already_watched));
 
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(viewPagerAdapter);
+    }
+
+    public SearchFragment getSearchFragment() {
+        return (SearchFragment) viewPagerAdapter.getItem(SEARCH_FRAGMENT_INDEX);
+    }
+
+    public WishlistFragment getWishlistFragment() {
+        return (WishlistFragment) viewPagerAdapter.getItem(WISHLIST_FRAGMENT_INDEX);
+    }
+
+    public AlreadyWatchedFragment getAlreadyWatchedFragment() {
+        return (AlreadyWatchedFragment) viewPagerAdapter.getItem(ALREADY_WATCHED_FRAGMENT_INDEX);
     }
 }

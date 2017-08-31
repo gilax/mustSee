@@ -23,6 +23,7 @@ public abstract class BaseMovieFragment extends Fragment implements Serializable
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Nullable

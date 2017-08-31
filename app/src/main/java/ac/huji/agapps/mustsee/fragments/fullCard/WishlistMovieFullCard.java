@@ -13,7 +13,7 @@ public class WishlistMovieFullCard extends DataBaseMovieFullCard {
         builder.setPositiveButton(R.string.full_card_wishlist_possitive_button, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((MainActivity)getActivity()).alreadyWatchedFragment.addMovieToAlreadyWatchedList(movie);
+                ((MainActivity)getActivity()).getAlreadyWatchedFragment().addMovieToAlreadyWatchedList(movie);
             }
         });
 

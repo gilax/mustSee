@@ -64,7 +64,7 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
     protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
         final FloatingActionButton button = movieViewHolder.mainFunction;
 
-        getMainActivity().wishlistFragment.addMovieToMustSeeList(movie);
+        getMainActivity().getWishlistFragment().addMovieToMustSeeList(movie);
 
         Animation shrink_animation = AnimationUtils.loadAnimation(fragment.getContext(), R.anim.shrink);
         final Animation expand_animation = AnimationUtils.loadAnimation(fragment.getContext(), R.anim.expand);
