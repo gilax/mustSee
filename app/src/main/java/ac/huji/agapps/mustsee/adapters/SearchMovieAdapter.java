@@ -1,41 +1,18 @@
 package ac.huji.agapps.mustsee.adapters;
 
-import android.animation.Animator;
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import android.content.Context;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.view.Display;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
-import android.widget.TextSwitcher;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import ac.huji.agapps.mustsee.R;
+import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
 import ac.huji.agapps.mustsee.fragments.fullCard.SearchMovieFullCard;
 import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
-import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
@@ -83,12 +60,9 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
             return this.searchResults.addResults(searchResults);
     }
 
-
     @Override
     protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
-
         final FloatingActionButton button = movieViewHolder.mainFunction;
-
 
         getMainActivity().wishlistFragment.addMovieToMustSeeList(movie);
 
@@ -116,6 +90,5 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
 
         String msg = fragment.getContext().getString(R.string.fab_pressed) + movieViewHolder.title.getText();
         Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-
     }
 }

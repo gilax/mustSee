@@ -1,13 +1,12 @@
 package ac.huji.agapps.mustsee.mustSeeApi;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 
-import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
+import ac.huji.agapps.mustsee.utils.PreferencesUtil;
 
 public class TopMoviesAPI extends TmdbApiRequest implements SearchRequest {
     private static final String TOP_MOVIES_BASE_URL = "/discover/movie";
@@ -31,24 +30,12 @@ public class TopMoviesAPI extends TmdbApiRequest implements SearchRequest {
 
     public TopMoviesAPI(Context context) {
 
-        String getSortBy = getSortBy(context);
+        String getSortBy = PreferencesUtil.getSortBy(context);
 
         if (getSortBy == null || getSortBy.length() == 0)
             this.sortBy = POPULARITY_DESC_SORT_BY;
         else
             this.sortBy = getSortBy;
-
-    }
-
-
-    /**
-     * tries to retrieve user's sorting pick in shared preferences
-     */
-    private String getSortBy(Context context) {
-        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_pref_id),
-                Context.MODE_PRIVATE);
-
-        return sharedPref.getString(context.getString(R.string.userSortPick), "");
 
     }
 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/movie_card"
@@ -42,11 +41,11 @@
             android:padding="@dimen/movie_title_padding"
             android:textColor="@color/movie_title"
             android:textSize="@dimen/movie_title"
-            android:layout_marginLeft="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin"
             android:layout_marginTop="@dimen/fab_margin"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintLeft_toRightOf="@+id/movie_poster"
-            app:layout_constraintRight_toLeftOf="@+id/overflow"
+            app:layout_constraintLeft_toRightOf="@+id/movie_card_button"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
@@ -57,9 +56,9 @@
             android:padding="@dimen/movie_title_padding"
             android:textSize="@dimen/movie_secondary_title"
             android:textColor="@color/movie_title"
-            android:layout_marginLeft="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin"
             android:layout_marginTop="5dp"
-            app:layout_constraintLeft_toRightOf="@+id/movie_poster"
+            app:layout_constraintLeft_toRightOf="@+id/movie_card_button"
             app:layout_constraintTop_toBottomOf="@+id/movie_title" />
 
         <android.support.design.widget.FloatingActionButton
@@ -77,18 +76,6 @@
             app:layout_constraintRight_toRightOf="@+id/right_of_poster"
             app:layout_constraintTop_toTopOf="@+id/movie_poster"
             android:layout_marginTop="16dp" />
-
-        <TextView
-            android:layout_width="10dp"
-            android:layout_height="35dp"
-            android:id="@+id/overflow"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginRight="@dimen/ic_movie_overflow_margin_top"
-            android:layout_marginTop="@dimen/ic_movie_overflow_margin_top"
-            android:scaleType="centerCrop"
-            android:text="@string/vertical_ellipsis"
-            android:textAppearance="?android:textAppearanceLarge" />
 
     </android.support.constraint.ConstraintLayout>
 

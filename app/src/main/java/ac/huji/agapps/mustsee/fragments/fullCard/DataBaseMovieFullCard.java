@@ -2,9 +2,9 @@ package ac.huji.agapps.mustsee.fragments.fullCard;
 
 import android.support.annotation.Nullable;
 
-import ac.huji.agapps.mustsee.MovieDataBase;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.DetailedMovie;
+import ac.huji.agapps.mustsee.utils.MovieDataBase;
 
 public abstract class DataBaseMovieFullCard extends MovieFullCard {
 

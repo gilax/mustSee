@@ -1,22 +1,15 @@
 package ac.huji.agapps.mustsee.adapters;
 
-import android.content.Context;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,8 +19,8 @@ import java.util.Arrays;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
-import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 import ac.huji.agapps.mustsee.mustSeeApi.ImageAPI;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
@@ -56,7 +49,6 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
         ImageView poster;
         TextView title;
         FloatingActionButton mainFunction;
-        TextView overflow;
         TextView rating;
         CardView card;
 
@@ -67,7 +59,6 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             title = (TextView) itemView.findViewById(R.id.movie_title);
             poster = (ImageView) itemView.findViewById(R.id.movie_poster);
             mainFunction = (FloatingActionButton) itemView.findViewById(R.id.movie_card_button);
-            overflow = (TextView) itemView.findViewById(R.id.overflow);
             rating = (TextView) itemView.findViewById(R.id.movie_rating);
         }
 
@@ -140,14 +131,6 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             movieHolder.title.setText(movie.getTitle());
             movieHolder.addRate(movie.getVoteAverage());
 
-            movieHolder.overflow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PopupMenu menu = new PopupMenu(fragment.getContext(), movieHolder.overflow);
-                    MenuInflater inflater = menu.getMenuInflater();
-                }
-            });
-
             changeFloatingButtonIcon(movieHolder);
             movieHolder.mainFunction.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,7 +139,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
                 }
             });
 
-            movieHolder.card.setOnClickListener(new View.OnClickListener() {
+            View.OnClickListener openFullCard = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     FragmentTransaction fragmentTransaction = fragment.getChildFragmentManager().beginTransaction();
@@ -168,7 +151,10 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
 
                     movieFullCard.show(fragmentTransaction, "");
                 }
-            });
+            };
+
+            movieHolder.card.setOnClickListener(openFullCard);
+            movieHolder.poster.setOnClickListener(openFullCard);
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingHolder = (LoadingViewHolder) holder;
             loadingHolder.progressBar.setIndeterminate(true);
@@ -189,7 +175,6 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
                 return null;
         }
     }
-
 
     public void setOnLoadMoreListener(@Nullable OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;

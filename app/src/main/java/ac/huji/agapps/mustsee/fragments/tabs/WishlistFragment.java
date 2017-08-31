@@ -13,17 +13,18 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import ac.huji.agapps.mustsee.MovieDataBase;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.WishlistMovieAdapter;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieDataBase;
 import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class WishlistFragment extends BaseMovieFragment {
 
     private static final String WISHLIST_RESULTS_KEY = "wishlistResults";
+    private static final String WISHLIST_IS_AT_START = "wishlistIsAtStart";
     private ArrayList<Result> wishlistResults;
 
     public WishlistFragment() {
@@ -40,6 +41,7 @@ public class WishlistFragment extends BaseMovieFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(WISHLIST_RESULTS_KEY, wishlistResults);
+        outState.putBoolean(WISHLIST_IS_AT_START, ((WishlistMovieAdapter)movieAdapter).isAtStart());
     }
 
     @Override
@@ -95,15 +97,7 @@ public class WishlistFragment extends BaseMovieFragment {
             @Override
             public void onLoadMore() {
                 if (wishlistResults.size() == 0) {
-                    MainActivity.dataBase.readMovieFromMustSeeListForUser(new MovieDataBase.OnResultsLoadedListener() {
-                        @Override
-                        public void onResultsLoaded(ArrayList<Result> loadedResults) {
-                            wishlistResults.addAll(loadedResults);
-                            movieAdapter.setLoaded();
-                            ((WishlistMovieAdapter)movieAdapter).setAtStart(false);
-                            movieAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    loadResults();
                 } else {
                     movieAdapter.setLoaded();
                 }
@@ -113,13 +107,16 @@ public class WishlistFragment extends BaseMovieFragment {
 
     @Override
     protected BaseMovieAdapter createAdapter(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.getParcelableArrayList(WISHLIST_RESULTS_KEY) != null) {
+        if (savedInstanceState != null) {
             wishlistResults = savedInstanceState.getParcelableArrayList(WISHLIST_RESULTS_KEY);
         } else {
             wishlistResults = new ArrayList<>();
         }
 
-        return new WishlistMovieAdapter(recyclerView, this, (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), wishlistResults);
+        boolean atStart = savedInstanceState == null || savedInstanceState.getBoolean(WISHLIST_IS_AT_START, true);
+
+        return new WishlistMovieAdapter(recyclerView, this,
+                (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), wishlistResults, atStart);
     }
 
     public void addMovieToMustSeeList(Result movie) {
@@ -128,5 +125,25 @@ public class WishlistFragment extends BaseMovieFragment {
             wishlistResults.add(movie);
             movieAdapter.notifyItemInserted(wishlistResults.size() - 1);
         }
+    }
+
+    public void reset() {
+        wishlistResults.clear();
+        ((WishlistMovieAdapter)movieAdapter).setAtStart(true);
+        movieAdapter.resetLoadingState();
+        movieAdapter.notifyDataSetChanged();
+        loadResults();
+    }
+
+    private void loadResults() {
+        MainActivity.dataBase.readMovieFromMustSeeListForUser(new MovieDataBase.OnResultsLoadedListener() {
+            @Override
+            public void onResultsLoaded(ArrayList<Result> loadedResults) {
+                wishlistResults.addAll(loadedResults);
+                movieAdapter.setLoaded();
+                ((WishlistMovieAdapter)movieAdapter).setAtStart(false);
+                movieAdapter.notifyDataSetChanged();
+            }
+        });
     }
 }

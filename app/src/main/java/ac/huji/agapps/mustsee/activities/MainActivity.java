@@ -1,37 +1,34 @@
 package ac.huji.agapps.mustsee.activities;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.youtube.player.YouTubePlayer;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.android.youtube.player.YouTubePlayer;
 
-import ac.huji.agapps.mustsee.MovieDataBase;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.adapters.ViewPagerAdapter;
 import ac.huji.agapps.mustsee.fragments.tabs.AlreadyWatchedFragment;
 import ac.huji.agapps.mustsee.fragments.tabs.SearchFragment;
 import ac.huji.agapps.mustsee.fragments.tabs.WishlistFragment;
+import ac.huji.agapps.mustsee.utils.MovieDataBase;
+import ac.huji.agapps.mustsee.utils.PreferencesUtil;
 
 public class MainActivity extends AppCompatActivity {
-
-    private ViewPager viewPager;
 
     public static MovieDataBase dataBase = new MovieDataBase();
 
@@ -39,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     public WishlistFragment wishlistFragment;
     public AlreadyWatchedFragment alreadyWatchedFragment;
 
-    private GoogleApiClient mGoogleApiClient;
+    private ViewPager viewPager;
     private FirebaseUser user;
     private String sortPick;
 
@@ -81,41 +78,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        if (user == null) {
+            signIn();
+        }
         setupViewPager(viewPager);
-        getUserName();
-        sortPick = getSortBy();
+
+        sortPick = PreferencesUtil.getSortBy(this);
     }
 
-    /**
-     * tries to retrieve user's sorting pick in shared preferences
-     */
-    private String getSortBy() {
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_id),
-                Context.MODE_PRIVATE);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        return sharedPref.getString(getString(R.string.userSortPick), "");
+        PreferencesUtil.OnSignedInListener onSignedInListener = new PreferencesUtil.OnSignedInListener() {
+            @Override
+            public void onSignedIn() {
+                user = FirebaseAuth.getInstance().getCurrentUser();
+                wishlistFragment.reset();
+                alreadyWatchedFragment.reset();
+                if (PreferencesUtil.getSortBy(MainActivity.this).length() == 0) {
+                    PreferencesUtil.setSortBy(MainActivity.this, null);
+                }
+            }
+        };
+        PreferencesUtil.onActivityResult(this, requestCode, resultCode, data, onSignedInListener);
     }
 
     @Override
     protected void onStart() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-        mGoogleApiClient.connect();
-
-        String newSortPick = getSortBy();
-        if (sortPick != null && !sortPick.equals(newSortPick)) {
-            ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
-            SearchFragment searchFragment = (SearchFragment) adapter.getItem(0);
-            searchFragment.performFirstSearch(true);
-            //todo, perhaps trySearch is faster instead of perform search
-            adapter.notifyDataSetChanged();
-
-            sortPick = newSortPick;
-        }
+        PreferencesUtil.initGoogleApiClient(this);
+        PreferencesUtil.mGoogleApiClient.connect();
 
         super.onStart();
     }
@@ -123,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        // Associate searchable configuration with the SearchView
         return true;
     }
 
@@ -135,13 +126,8 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
     }
 
-    /**
-     * gets name of user using shared preferences (saved when signing in)
-     */
-    private String getUserName() {
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_username),
-                Context.MODE_PRIVATE);
-        return sharedPref.getString(getString(R.string.userName), "");
+    private void signIn() {
+        PreferencesUtil.createSignInDialog(this).show();
     }
 
     /**
@@ -151,31 +137,41 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
-
-                /*inform the pref activity to not automatically transfer us to main activity
-                just because we're logged in*/
-                myIntent.putExtra(getString(R.string.disable_auto_transfer), "true");
-                startActivity(myIntent);
-                return true;
-
             case R.id.action_log_out:
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if(user != null){
+                if (user != null){
                     FirebaseAuth.getInstance().signOut();
                     // Google sign out
-                    Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    Auth.GoogleSignInApi.signOut(PreferencesUtil.mGoogleApiClient).setResultCallback(
                             new ResultCallback<Status>() {
                                 @Override
                                 public void onResult(@NonNull Status status) {
-                                    Intent myIntent = new Intent(MainActivity.this, PreferencesActivity.class);
-                                    MainActivity.this.startActivity(myIntent);
-                                    //finish(), can't go back to the main page once you log out
-                                    finish();
+                                    new AlertDialog.Builder(MainActivity.this)
+                                            .setMessage("You were Logged out.")
+                                            .setCancelable(false)
+                                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    signIn();
+                                                }
+                                            }).show();
                                 }
                             });
                 }
+                return true;
+
+            case R.id.action_sort_movies:
+                PreferencesUtil.createSortByDialog(MainActivity.this, new PreferencesUtil.OnChooseSortByListener(){
+                    @Override
+                    public void onChooseSortBy(String chosenSortPick) {
+                        if (sortPick != null && !sortPick.equals(chosenSortPick)) {
+                            ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
+                            searchFragment.performFirstSearch(true);
+                            adapter.notifyDataSetChanged();
+
+                            sortPick = chosenSortPick;
+                        }
+                    }
+                }).show();
                 return true;
 
             default:

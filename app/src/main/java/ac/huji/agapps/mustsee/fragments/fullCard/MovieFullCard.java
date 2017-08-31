@@ -19,15 +19,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import ac.huji.agapps.mustsee.BuildConfig;
 import ac.huji.agapps.mustsee.R;
@@ -59,7 +57,6 @@ public abstract class MovieFullCard extends DialogFragment {
     public final String lengthKey = "length";
     public final String genreKey = "genre";
     public final String directorKey = "director";
-
 
     public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
@@ -93,16 +90,13 @@ public abstract class MovieFullCard extends DialogFragment {
         mDirector = (TextView) view.findViewById(R.id.movie_director);
         mTrailerButton = (Button) view.findViewById(R.id.youtube_player_button);
 
-        if(savedInstanceState != null)
-        {
+        if (savedInstanceState != null) {
             //cast, length, genre, director
             mCast.setText(savedInstanceState.getString(castKey));
             mLength.setText(savedInstanceState.getString(lengthKey));
             mGenre.setText(savedInstanceState.getString(genreKey));
             mDirector.setText(savedInstanceState.getString(directorKey));
-        }
-        else
-        {
+        } else {
             DetailedMovieAsyncTask task = getDetailedMovieAsyncTask();
             task.execute(movie.getId().intValue());
         }
@@ -138,7 +132,6 @@ public abstract class MovieFullCard extends DialogFragment {
         ImageAPI.putPosterToView(getActivity(), movie, mPoster);
 
         builder.setView(view);
-
         setDialogButtons(builder, movie);
 
         return builder.create();
@@ -185,7 +178,7 @@ public abstract class MovieFullCard extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //cast, length, genre, director
+        // cast, length, genre, director
         outState.putString(castKey, (String) mCast.getText());
         outState.putString(lengthKey, (String) mLength.getText());
         outState.putString(genreKey, (String) mGenre.getText());
@@ -195,7 +188,6 @@ public abstract class MovieFullCard extends DialogFragment {
     protected abstract DetailedMovieAsyncTask getDetailedMovieAsyncTask();
 
     abstract class DetailedMovieAsyncTask extends AsyncTask<Integer, Void, DetailedMovie> {
-
         @Override
         protected void onPreExecute() {
             // TODO case we want to add a loading dialog - start

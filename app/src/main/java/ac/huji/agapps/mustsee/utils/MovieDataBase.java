@@ -1,4 +1,4 @@
-package ac.huji.agapps.mustsee;
+package ac.huji.agapps.mustsee.utils;
 
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;

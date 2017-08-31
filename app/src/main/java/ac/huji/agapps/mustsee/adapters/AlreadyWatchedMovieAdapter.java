@@ -1,32 +1,28 @@
 package ac.huji.agapps.mustsee.adapters;
 
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuInflater;
-import android.view.View;
 
 import java.util.ArrayList;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.fragments.fullCard.AlreadyWatchedMovieFullCard;
-import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
 
     private ArrayList<Result> results;
-    private boolean isAtStart = true;
+    private boolean atStart = true;
 
-    public AlreadyWatchedMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment, MovieStaggeredGridLayoutManager layoutManager, ArrayList<Result> results) {
+    public AlreadyWatchedMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment,
+                                      MovieStaggeredGridLayoutManager layoutManager, ArrayList<Result> results, boolean atStart) {
         super(recyclerView, fragment, layoutManager);
         this.results = results;
+        this.atStart = atStart;
     }
-
-
-
 
     @Override
     protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
@@ -36,12 +32,11 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
 
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, getItemCount());
-//        notifyDataSetChanged();
     }
 
     @Override
     protected void changeFloatingButtonIcon(MovieViewHolder movieHolder) {
-        movieHolder.changeFloatingButtonIcon(R.drawable.ic_recycle);
+        movieHolder.changeFloatingButtonIcon(R.drawable.ic_back);
     }
 
     @Override
@@ -64,13 +59,17 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
 
     @Override
     public int getItemCount() {
-        if (isAtStart) {
+        if (atStart) {
             return 1;
         }
         return results.size();
     }
 
-    public void setAtStart(boolean atStart) {
-        isAtStart = atStart;
+    public void setAtStart(boolean isAtStart) {
+        this.atStart = isAtStart;
+    }
+
+    public boolean isAtStart() {
+        return atStart;
     }
 }

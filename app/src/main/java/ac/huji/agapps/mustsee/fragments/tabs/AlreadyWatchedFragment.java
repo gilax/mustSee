@@ -8,17 +8,18 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import ac.huji.agapps.mustsee.MovieDataBase;
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.adapters.AlreadyWatchedMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
+import ac.huji.agapps.mustsee.utils.MovieDataBase;
 import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class AlreadyWatchedFragment extends BaseMovieFragment {
 
     private static final String ALREADY_WATCHED_RESULTS_KEY = "alreadyWatchedResults";
+    private static final String ALREADY_WATCHED_IS_AT_START = "alreadyWatchedIsAtStart";
     private ArrayList<Result> alreadyWatchedResults;
 
     public AlreadyWatchedFragment() {
@@ -29,6 +30,7 @@ public class AlreadyWatchedFragment extends BaseMovieFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(ALREADY_WATCHED_RESULTS_KEY, alreadyWatchedResults);
+        outState.putBoolean(ALREADY_WATCHED_IS_AT_START, ((AlreadyWatchedMovieAdapter)movieAdapter).isAtStart());
     }
 
     @Override
@@ -44,15 +46,7 @@ public class AlreadyWatchedFragment extends BaseMovieFragment {
             @Override
             public void onLoadMore() {
                 if (alreadyWatchedResults.size() == 0) {
-                    MainActivity.dataBase.readMovieFromAlreadyWatchedListForUser(new MovieDataBase.OnResultsLoadedListener() {
-                        @Override
-                        public void onResultsLoaded(ArrayList<Result> loadedResults) {
-                            alreadyWatchedResults.addAll(loadedResults);
-                            movieAdapter.setLoaded();
-                            ((AlreadyWatchedMovieAdapter) movieAdapter).setAtStart(false);
-                            movieAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    loadResults();
                 } else {
                     movieAdapter.setLoaded();
                 }
@@ -68,8 +62,10 @@ public class AlreadyWatchedFragment extends BaseMovieFragment {
             alreadyWatchedResults = new ArrayList<>();
         }
 
+        boolean atStart = savedInstanceState == null || savedInstanceState.getBoolean(ALREADY_WATCHED_IS_AT_START, true);
+
         return new AlreadyWatchedMovieAdapter(recyclerView, this,
-                (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), alreadyWatchedResults);
+                (MovieStaggeredGridLayoutManager) recyclerView.getLayoutManager(), alreadyWatchedResults, atStart);
     }
 
     @Override
@@ -84,5 +80,25 @@ public class AlreadyWatchedFragment extends BaseMovieFragment {
             alreadyWatchedResults.add(movie);
             movieAdapter.notifyItemInserted(alreadyWatchedResults.size() - 1);
         }
+    }
+
+    public void reset() {
+        alreadyWatchedResults.clear();
+        ((AlreadyWatchedMovieAdapter)movieAdapter).setAtStart(true);
+        movieAdapter.resetLoadingState();
+        movieAdapter.notifyDataSetChanged();
+        loadResults();
+    }
+
+    private void loadResults() {
+        MainActivity.dataBase.readMovieFromAlreadyWatchedListForUser(new MovieDataBase.OnResultsLoadedListener() {
+            @Override
+            public void onResultsLoaded(ArrayList<Result> loadedResults) {
+                alreadyWatchedResults.addAll(loadedResults);
+                movieAdapter.setLoaded();
+                ((AlreadyWatchedMovieAdapter) movieAdapter).setAtStart(false);
+                movieAdapter.notifyDataSetChanged();
+            }
+        });
     }
 }

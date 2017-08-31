@@ -1,27 +1,27 @@
 package ac.huji.agapps.mustsee.adapters;
 
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuInflater;
-import android.view.View;
 
 import java.util.ArrayList;
 
+import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
-import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
 import ac.huji.agapps.mustsee.fragments.fullCard.WishlistMovieFullCard;
+import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.Result;
 import ac.huji.agapps.mustsee.utils.MovieStaggeredGridLayoutManager;
 
 public class WishlistMovieAdapter extends BaseMovieAdapter {
 
     private ArrayList<Result> results;
-    private boolean isAtStart = true;
+    private boolean atStart = true;
 
-    public WishlistMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment, MovieStaggeredGridLayoutManager layoutManager, ArrayList<Result> wishlistResults) {
+    public WishlistMovieAdapter(RecyclerView recyclerView, BaseMovieFragment fragment,
+                                MovieStaggeredGridLayoutManager layoutManager, ArrayList<Result> results, boolean atStart) {
         super(recyclerView, fragment, layoutManager);
-        this.results = wishlistResults;
+        this.results = results;
+        this.atStart = atStart;
     }
 
     @Override
@@ -32,12 +32,11 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
 
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, getItemCount());
-//        notifyDataSetChanged();
     }
 
     @Override
     protected void changeFloatingButtonIcon(MovieViewHolder movieHolder) {
-        movieHolder.changeFloatingButtonIcon(android.R.drawable.checkbox_on_background);
+        movieHolder.changeFloatingButtonIcon(R.drawable.ic_done);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (isAtStart)
+        if (atStart)
             return VIEW_TYPE_LOADING;
         else
             return VIEW_TYPE_MOVIE;
@@ -60,13 +59,17 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
 
     @Override
     public int getItemCount() {
-        if (isAtStart) {
+        if (atStart) {
             return 1;
         }
         return results.size();
     }
 
     public void setAtStart(boolean isAtStart) {
-        this.isAtStart = isAtStart;
+        this.atStart = isAtStart;
+    }
+
+    public boolean isAtStart() {
+        return atStart;
     }
 }

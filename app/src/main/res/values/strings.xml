@@ -1,45 +1,56 @@
 <resources>
     <string name="app_name">MustSee</string>
 
+    <!--error messages-->
     <string name="error_msg">You got an Error</string>
     <string name="auth_fail">Authentication failed.</string>
 
-    <string name="sort_pick">Sort Movies by:</string>
+    <!--Shared Preferences contents-->
     <string name="userSortPick">userSortPick</string>
     <string name="userName">userName</string>
 
+    <!--Shared Preferences ids-->
     <string name="shared_pref_id">shared_pref_id</string>
     <string name="shared_pref_username">shared_pref_username</string>
-    <string name="genre_pick_layout">genre_pick_layout</string>
+
+    <!--menu items-->
     <string name="log_out">Log Out</string>
-    <string name="logged_out">Logged Out</string>
+    <string name="action_sort_movies_by">Sort Movies By</string>
 
-
-    <string name="user_status_bar">user: %s</string>
-    <string name="user_disconnected_status_bar">user: Disconnected</string>
+    <!--login messages-->
     <string name="register_wait">Registering Please Wait…</string>
-    <string name="action_settings">Settings</string>
 
-    <string name="disable_auto_transfer">settings</string>
-
+    <!--Tabs names-->
     <string name="search">Search</string>
     <string name="wishlist">Must See</string>
     <string name="already_watched">Already Watched</string>
-    <string name="add_to_wishlist">Add to wishlist</string>
-    <string name="vertical_ellipsis">⋮</string>
+
+    <!--Alert message-->
     <string name="wishlist_remove">Remove from wishlist</string>
-    <string name="search_hint">Search a movie</string>
+
+    <!--Card's items-->
     <string name="poster_description">Movie\'s poster</string>
     <string name="rating_title">Rating: %.1f</string>
     <string name="watch_trailer">Click here to watch the Trailer</string>
 
+    <!--Search fragment-->
+    <string name="search_hint">Search a movie</string>
+
+    <!--Wishlist fragment-->
     <string name="remove_all_mustSee_alert_title">Remove All MustSee List</string>
     <string name="remove_all_mustSee_alert_message">Are you sure you want to remove all the movies from your Must See list?\n(notice: this action will affect all of your devices)</string>
     <string name="remove_all_mustSee_alert_negative_button">Cancel</string>
     <string name="remove_all_mustSee_alert_positive_button">Delete</string>
+
     <string name="fab_pressed">Added </string>
 
+    <!--Full card-->
     <string name="full_card_already_watched_possitive_button">Move back to Wishlist</string>
     <string name="full_card_search_possitive_button">Add to wishlist</string>
     <string name="full_card_wishlist_possitive_button">I watched it</string>
+
+    <!--Welcome alert (Sign in)-->
+    <string name="welcome_to_mustsee">We noticed that you are not signed in yet. Please sign in first.</string>
+    <string name="welcome_title">Welcome to mustSee!</string>
+    <string name="sign_in">Sign in</string>
 </resources>
