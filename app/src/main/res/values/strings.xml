@@ -53,4 +53,6 @@
     <string name="welcome_to_mustsee">We noticed that you are not signed in yet. Please sign in first.</string>
     <string name="welcome_title">Welcome to mustSee!</string>
     <string name="sign_in">Sign in</string>
+    <string name="search_error_message_no_results">There are no results for this search.</string>
+    <string name="search_error_message_no_internet_connection">There is no internet connection. Can\'t find your request.</string>
 </resources>
