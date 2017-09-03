@@ -89,6 +89,10 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 viewPager.setCurrentItem(position);
                 ((AppBarLayout)findViewById(R.id.app_bar)).setExpanded(true);
+                animatorSet.removeAllListeners();
+                animatorSet.end();
+                animatorSet.cancel();
+                animatorSet = new AnimatorSet();
             }
 
             @Override
