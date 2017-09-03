@@ -152,7 +152,7 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
                 searchMovieAdapter.setLoaded();
                 return true;
             }
-            searchRequest = new MovieSearchAPI(query);
+            searchRequest = new MovieSearchAPI(query.trim());
         } else {
             if (searchRequest instanceof TopMoviesAPI) {
                 searchMovieAdapter.setLoaded();
