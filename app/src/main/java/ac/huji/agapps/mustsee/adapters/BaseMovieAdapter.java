@@ -169,12 +169,6 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             movieHolder.card.setOnClickListener(openFullCard);
             movieHolder.poster.setOnClickListener(openFullCard);
 
-            if(movie == null)
-            {
-                int x = 5;
-                x = 5+5;
-            }
-
             if (MainActivity.dataBase.genresMap.size() != 0 && movie.getGenreIds().size()!= 0) {
                 List<String> movieGenresList = new ArrayList<>();
                 for (Long movieGenre : movie.getGenreIds()) {

@@ -231,11 +231,6 @@ public abstract class MovieFullCard extends DialogFragment {
                     }
                     mGenre.setText(String.format("Genre: %s", genres));
                 }
-//                mCast.setVisibility(View.VISIBLE);
-//                mCast.setText("Cast: " + TODO);
-//                mDirector.setVisibility(View.VISIBLE);
-//                mDirector.setText("Director: " + TODO);
-//                mTrailerButton.setVisibility(View.VISIBLE); // TODO uncomment when issue with youtube is fixed
                 attachTrailerPlayer(detailedMovie);
             }
         }

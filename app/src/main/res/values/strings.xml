@@ -49,7 +49,7 @@
     <string name="ageRestrictTrue">Yes</string>
     <string name="ageRestrictFalse">None</string>
     <string name="ageRestrictText">Age restriction: </string>
-    <string name="voteAverageText">Age restriction: </string>
+    <string name="voteAverageText">Vote average: </string>
     <string name="descriptionText">Description:\n</string>
     <string name="full_card_already_watched_possitive_button">Move back to Wishlist</string>
     <string name="full_card_search_possitive_button">Add to wishlist</string>
