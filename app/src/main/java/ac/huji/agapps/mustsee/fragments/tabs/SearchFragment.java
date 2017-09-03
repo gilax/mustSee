@@ -10,10 +10,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.io.Serializable;
 
 import ac.huji.agapps.mustsee.R;
+import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.adapters.BaseMovieAdapter;
 import ac.huji.agapps.mustsee.adapters.SearchMovieAdapter;
 import ac.huji.agapps.mustsee.mustSeeApi.MovieSearchAPI;
@@ -27,15 +29,11 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
     private static final String SEARCH_RESULTS_KEY = "SearchResults";
     private static final String SEARCH_REQUEST_KEY = "SearchRequest";
     private static final String CURRENT_SEARCH_ASYNC_TASK_KEY = "CurrentTask";
-    private final String TAG = "SEARCH FRAGMENT";
+    private static final String TAG = "SEARCH FRAGMENT";
 
     private SearchMovieAdapter searchMovieAdapter;
     @Nullable
     private MovieSearchResults searchResults;
-
-    public SearchRequest getSearchRequest() {
-        return searchRequest;
-    }
 
     private SearchRequest searchRequest;
     private SearchAsyncTask currentTask;
@@ -154,7 +152,7 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
                 searchMovieAdapter.setLoaded();
                 return true;
             }
-            searchRequest = new MovieSearchAPI(query);
+            searchRequest = new MovieSearchAPI(query.trim());
         } else {
             if (searchRequest instanceof TopMoviesAPI) {
                 searchMovieAdapter.setLoaded();
@@ -168,7 +166,7 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
 
     public boolean performFirstSearch(boolean isInitNewTopMovies)
     {
-        if(isInitNewTopMovies)
+        if (isInitNewTopMovies)
             searchRequest = new TopMoviesAPI(getContext());
 
         assert searchResults != null;
@@ -186,23 +184,41 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
         if (currentTask != null) {
             currentTask.cancel(true);
         }
-        currentTask = new SearchAsyncTask();
+        currentTask = new SearchAsyncTask((MainActivity)getActivity());
+        currentTask.setOnPreListener(onPreListener);
         currentTask.setOnPostListener(onPostListener);
         currentTask.execute(searchRequest);
     }
 
+    transient SearchAsyncTask.OnPreListener onPreListener = new SearchAsyncTask.OnPreListener() {
+        @Override
+        public void onPreExecute() {
+            View fragment = SearchFragment.this.getView();
+            if (fragment != null) {
+                TextView errorContainer = (TextView) fragment.findViewById(R.id.error_message_container);
+                errorContainer.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     transient SearchAsyncTask.OnPostListener onPostListener = new SearchAsyncTask.OnPostListener() {
         @Override
         public void onPostExecute(@Nullable MovieSearchResults searchResults) {
-            if (searchResults == null) {
-                // TODO handle case where there isn't results
-                searchMovieAdapter.setLoaded();
-                return;
-            }
-
             if (SearchFragment.this.searchResults != null) {
                 SearchFragment.this.searchResults.removeLastFromResults();
+            }
+
+            if (!((MainActivity) getActivity()).haveInternetConnection()) {
+                setErrorMessageToContainer(R.string.search_error_message_no_internet_connection);
+            } else if (searchResults == null) {
+                setErrorMessageToContainer(R.string.search_error_message_no_results);
+            }
+
+            if (searchResults == null) {
+                searchMovieAdapter.setLoaded();
+                searchMovieAdapter.notifyDataSetChanged();
+                return;
             }
 
             searchMovieAdapter.addSearchResults(searchResults);
@@ -214,4 +230,14 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
             currentTask = null;
         }
     };
+
+    private void setErrorMessageToContainer(int errorMessageResource) {
+        View fragment = getView();
+        if (fragment != null) {
+            TextView errorContainer = (TextView) fragment.findViewById(R.id.error_message_container);
+            errorContainer.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            errorContainer.setText(errorMessageResource);
+        }
+    }
 }

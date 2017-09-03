@@ -1,5 +1,6 @@
 package ac.huji.agapps.mustsee.activities;
 
+import android.content.Context;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -9,6 +10,7 @@ import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -265,8 +267,6 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(alreadyWatchedFragment, getString(R.string.already_watched));
 
         viewPager.setAdapter(viewPagerAdapter);
-
-
     }
 
     public SearchFragment getSearchFragment() {
@@ -279,5 +279,10 @@ public class MainActivity extends AppCompatActivity {
 
     public AlreadyWatchedFragment getAlreadyWatchedFragment() {
         return (AlreadyWatchedFragment) viewPagerAdapter.getItem(ALREADY_WATCHED_FRAGMENT_INDEX);
+    }
+
+    public boolean haveInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 }

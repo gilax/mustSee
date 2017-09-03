@@ -60,7 +60,6 @@ public abstract class MovieFullCard extends DialogFragment {
     public final String NO_VALUE = "None";
     public final String PARSE_STRING = " %s";
 
-    public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
     private boolean isExpanded = false;
     protected int position;
@@ -206,7 +205,6 @@ public abstract class MovieFullCard extends DialogFragment {
     abstract class DetailedMovieAsyncTask extends AsyncTask<Integer, Void, DetailedMovie> {
         @Override
         protected void onPreExecute() {
-            // TODO case we want to add a loading dialog - start
             mDirector.setVisibility(View.GONE);
             mLength.setVisibility(View.GONE);
             mCast.setVisibility(View.GONE);
@@ -216,8 +214,6 @@ public abstract class MovieFullCard extends DialogFragment {
 
         void doWhenFinished(DetailedMovie detailedMovie) {
             if (detailedMovie != null) {
-                mCast.setVisibility(View.VISIBLE);
-                mCast.setText("Cast: " + TODO);
                 if (detailedMovie.getRuntime() != null) {
                     mLength.setVisibility(View.VISIBLE);
                     mLength.setText("Length: " + detailedMovie.getRuntime().intValue() + " min.");
@@ -235,11 +231,12 @@ public abstract class MovieFullCard extends DialogFragment {
                     }
                     mGenre.setText(String.format("Genre: %s", genres));
                 }
-                mDirector.setVisibility(View.VISIBLE);
-                mDirector.setText("Director: " + TODO);
+//                mCast.setVisibility(View.VISIBLE);
+//                mCast.setText("Cast: " + TODO);
+//                mDirector.setVisibility(View.VISIBLE);
+//                mDirector.setText("Director: " + TODO);
 //                mTrailerButton.setVisibility(View.VISIBLE); // TODO uncomment when issue with youtube is fixed
                 attachTrailerPlayer(detailedMovie);
-                // TODO case we want to add a loading dialog - stop
             }
         }
     }
