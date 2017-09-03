@@ -90,8 +90,7 @@ public class AlreadyWatchedFragment extends BaseMovieFragment {
         loadResults();
     }
 
-    public void remove(Result movie, int position)
-    {
+    public void remove(Result movie, int position) {
         ((AlreadyWatchedMovieAdapter)movieAdapter).remove(movie, position);
     }
 

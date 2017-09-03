@@ -48,9 +48,8 @@
     <!--Full card-->
     <string name="ageRestrictTrue">Yes</string>
     <string name="ageRestrictFalse">None</string>
-    <string name="ageRestrictText">Age restriction: </string>
-    <string name="voteAverageText">Vote average: </string>
-    <string name="descriptionText">Description:\n</string>
+    <string name="ageRestrictText">Age restriction: %s</string>
+    <string name="descriptionText">Description:\n%s</string>
     <string name="full_card_already_watched_possitive_button">Move back to Wishlist</string>
     <string name="full_card_search_possitive_button">Add to wishlist</string>
     <string name="full_card_wishlist_possitive_button">I watched it</string>
@@ -61,4 +60,9 @@
     <string name="sign_in">Sign in</string>
     <string name="search_error_message_no_results">There are no results for this search.</string>
     <string name="search_error_message_no_internet_connection">There is no internet connection. Can\'t find your request.</string>
+    <string name="already_watched_context_menu_return">Return to must see</string>
+    <string name="already_watched_context_menu_remove">Remove from already watched</string>
+    <string name="wishlist_context_menu_watched">I Watched it</string>
+    <string name="wishlist_context_menu_remove">Remove from must see</string>
+    <string name="search_context_menu_add">Add to must see</string>
 </resources>

@@ -1,6 +1,9 @@
 package ac.huji.agapps.mustsee.adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
 
 import java.util.ArrayList;
 
@@ -28,16 +31,12 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
     protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
         MainActivity.dataBase.deleteMovieFromAlreadyWatchedListForUser(movie.getId().intValue());
         getMainActivity().getWishlistFragment().addMovieToMustSeeList(movie);
-        results.remove(movie);
+        remove(movie, position);
 
-        ((MainActivity)fragment.getActivity()).tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
-
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, getItemCount());
+        getMainActivity().tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
     }
 
-    public void remove(Result movie, int position)
-    {
+    public void remove(Result movie, int position) {
         results.remove(movie);
 
         notifyItemRemoved(position);
@@ -57,6 +56,25 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
     @Override
     protected MovieFullCard getFullCard() {
         return new AlreadyWatchedMovieFullCard();
+    }
+
+    @Override
+    protected void onCreateMovieContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo, int position) {
+        menu.setHeaderTitle(results.get(position).getTitle());
+        menu.add(0, v.getId(), position, R.string.already_watched_context_menu_return);
+        menu.add(0, v.getId(), position, R.string.already_watched_context_menu_remove);
+    }
+
+    @Override
+    public void onContextItemSelected(MenuItem item) {
+        int position = item.getOrder();
+        String title = (String) item.getTitle();
+
+        if (title.equals(getMainActivity().getString(R.string.already_watched_context_menu_return))) {
+            onFloatingButtonClick(results.get(position), null, position);
+        } else if (title.equals(getMainActivity().getString(R.string.already_watched_context_menu_remove))) {
+            remove(results.get(position), position);
+        }
     }
 
     @Override

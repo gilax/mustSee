@@ -3,11 +3,13 @@ package ac.huji.agapps.mustsee.adapters;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
-import android.widget.Toast;
 
 import ac.huji.agapps.mustsee.R;
 import ac.huji.agapps.mustsee.activities.MainActivity;
@@ -46,6 +48,25 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
     @Override
     protected MovieFullCard getFullCard() {
         return new SearchMovieFullCard();
+    }
+
+    @Override
+    protected void onCreateMovieContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo, int position) {
+        assert searchResults != null;
+        menu.setHeaderTitle(searchResults.getResults().get(position).getTitle());
+        menu.add(0, v.getId(), position, R.string.search_context_menu_add);
+    }
+
+    @Override
+    public void onContextItemSelected(MenuItem item) {
+        int position = item.getOrder();
+        String title = (String) item.getTitle();
+
+        if (title.equals(getMainActivity().getString(R.string.search_context_menu_add))) {
+            assert searchResults != null;
+            getMainActivity().getWishlistFragment().addMovieToMustSeeList(searchResults.getResults().get(position));
+            getMainActivity().tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
+        }
     }
 
     @Override
@@ -90,6 +111,5 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
         getMainActivity().tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
 
         button.startAnimation(shrink_animation);
-
     }
 }

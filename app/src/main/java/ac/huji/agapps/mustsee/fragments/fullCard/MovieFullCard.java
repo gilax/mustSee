@@ -104,21 +104,18 @@ public abstract class MovieFullCard extends DialogFragment {
             task.execute(movie.getId().intValue());
         }
 
-
-
         mTitle.setText((movie.getTitle() != null) ? movie.getTitle() : NO_VALUE);
         String age_restriction_text = String.format
-                (getString(R.string.ageRestrictText) + PARSE_STRING,
+                (getString(R.string.ageRestrictText),
                         (movie.getAdult()) ? getString(R.string.ageRestrictTrue) :
                                 getString(R.string.ageRestrictFalse));
 
         mAge_restriction.setText((movie.getAdult() != null) ? age_restriction_text : NO_VALUE);
 
-        String vote_avg_text = String.format(getString(R.string.voteAverageText) + PARSE_STRING, movie.getVoteAverage());
+        String vote_avg_text = String.format(getString(R.string.rating_title), movie.getVoteAverage());
         mRatings.setText((movie.getVoteAverage() != null) ? vote_avg_text: NO_VALUE);
 
-
-        String descriptionText = String.format(getString(R.string.descriptionText) + PARSE_STRING, movie.getOverview());
+        String descriptionText = String.format(getString(R.string.descriptionText), movie.getOverview());
         mDescription.setText((movie.getOverview() != null) ? descriptionText: NO_VALUE);
 
         mDescription.setMovementMethod(new ScrollingMovementMethod());

@@ -1,6 +1,9 @@
 package ac.huji.agapps.mustsee.adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
 
 import java.util.ArrayList;
 
@@ -28,16 +31,12 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
     protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
         MainActivity.dataBase.deleteMovieFromMustSeeListForUser(movie.getId().intValue());
         getMainActivity().getAlreadyWatchedFragment().addMovieToAlreadyWatchedList(movie);
+        remove(movie, position);
 
-        ((MainActivity)fragment.getActivity()).tabColorAnimation(MainActivity.ALREADY_WATCHED_FRAGMENT_INDEX);
-        results.remove(movie);
-
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, getItemCount());
+        getMainActivity().tabColorAnimation(MainActivity.ALREADY_WATCHED_FRAGMENT_INDEX);
     }
 
-    public void remove(Result movie, int position)
-    {
+    public void remove(Result movie, int position) {
         results.remove(movie);
 
         notifyItemRemoved(position);
@@ -57,6 +56,25 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
     @Override
     protected MovieFullCard getFullCard() {
         return new WishlistMovieFullCard();
+    }
+
+    @Override
+    protected void onCreateMovieContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo, int position) {
+        menu.setHeaderTitle(results.get(position).getTitle());
+        menu.add(0, v.getId(), position, R.string.wishlist_context_menu_watched);
+        menu.add(0, v.getId(), position, R.string.wishlist_context_menu_remove);
+    }
+
+    @Override
+    public void onContextItemSelected(MenuItem item) {
+        int position = item.getOrder();
+        String title = (String) item.getTitle();
+
+        if (title.equals(getMainActivity().getString(R.string.wishlist_context_menu_watched))) {
+            onFloatingButtonClick(results.get(position), null, position);
+        } else if (title.equals(getMainActivity().getString(R.string.wishlist_context_menu_remove))) {
+            remove(results.get(position), position);
+        }
     }
 
     @Override

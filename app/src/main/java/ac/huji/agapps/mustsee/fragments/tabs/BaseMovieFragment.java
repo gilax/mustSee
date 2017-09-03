@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,6 +45,13 @@ public abstract class BaseMovieFragment extends Fragment implements Serializable
         movieAdapter.setOnLoadMoreListener(createOnLoadMoreListener());
 
         return onCreateFragment(inflater, container, savedInstanceState, fragment);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        movieAdapter.onContextItemSelected(item);
+
+        return super.onContextItemSelected(item);
     }
 
     protected abstract BaseMovieAdapter.OnLoadMoreListener createOnLoadMoreListener();

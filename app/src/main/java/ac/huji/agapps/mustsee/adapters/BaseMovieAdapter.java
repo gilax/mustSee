@@ -7,7 +7,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -47,7 +49,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     /***
      * View holder for a single result
      */
-    class MovieViewHolder extends RecyclerView.ViewHolder{
+    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         ImageView poster;
         TextView title;
         FloatingActionButton mainFunction;
@@ -63,6 +65,8 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
             mainFunction = (FloatingActionButton) itemView.findViewById(R.id.movie_card_button);
             rating = (TextView) itemView.findViewById(R.id.movie_rating);
             genres = (TextView) itemView.findViewById(R.id.movie_genres_list);
+
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         void addRate(Double voteAverage) {
@@ -80,6 +84,11 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
 
         void changeFloatingButtonIcon(int resourceId) {
             mainFunction.setImageResource(resourceId);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            BaseMovieAdapter.this.onCreateMovieContextMenu(menu, v, menuInfo, getAdapterPosition());
         }
     }
 
@@ -135,7 +144,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MovieViewHolder) {
             final Result movie = getMovie(position);
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
@@ -157,7 +166,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
                     FragmentTransaction fragmentTransaction = fragment.getChildFragmentManager().beginTransaction();
                     Bundle args = new Bundle();
                     args.putParcelable("movie", movie);
-                    args.putInt("position", position);
+                    args.putInt("position", holder.getAdapterPosition());
                     MovieFullCard movieFullCard = getFullCard();
 
                     movieFullCard.setArguments(args);
@@ -229,6 +238,10 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     protected abstract Result getMovie(int position);
 
     protected abstract MovieFullCard getFullCard();
+
+    protected abstract void onCreateMovieContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo, int position);
+
+    public abstract void onContextItemSelected(MenuItem item);
 
     @Override
     public abstract int getItemViewType(int position);

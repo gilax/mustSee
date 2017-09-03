@@ -91,8 +91,7 @@ public class WishlistFragment extends BaseMovieFragment {
         }
     }
 
-    public void remove(Result movie, int position)
-    {
+    public void remove(Result movie, int position) {
         ((WishlistMovieAdapter)movieAdapter).remove(movie, position);
     }
 

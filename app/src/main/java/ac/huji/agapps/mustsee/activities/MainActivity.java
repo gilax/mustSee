@@ -1,9 +1,9 @@
 package ac.huji.agapps.mustsee.activities;
 
-import android.content.Context;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -52,12 +52,9 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser user;
     private String sortPick;
 
-
     private AnimatorSet animatorSet;
     private ValueAnimator colorAnimation;
     private ValueAnimator reColorAnimation;
-
-
 
     public YouTubePlayer youTubePlayer;
     public boolean trailerFullScreen;
@@ -69,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
         dataBase.readGenres();
         animatorSet = new AnimatorSet();
-
-
 
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -106,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             signIn();
         }
         setupViewPager(viewPager);
-
 
         sortPick = PreferencesUtil.getSortBy(this);
     }
@@ -204,8 +198,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tabColorAnimation(int index)
-    {
+    public void tabColorAnimation(int index) {
         animatorSet.removeAllListeners();
         animatorSet.end();
         animatorSet.cancel();
