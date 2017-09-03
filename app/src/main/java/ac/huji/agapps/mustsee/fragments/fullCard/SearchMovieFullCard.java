@@ -22,6 +22,7 @@ public class SearchMovieFullCard extends MovieFullCard {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MainActivity.dataBase.writeMovieToMustSeeListForUser(movie);
+                ((MainActivity)getActivity()).tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
             }
         });
 

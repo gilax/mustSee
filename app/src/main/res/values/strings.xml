@@ -42,9 +42,15 @@
     <string name="remove_all_mustSee_alert_negative_button">Cancel</string>
     <string name="remove_all_mustSee_alert_positive_button">Delete</string>
 
-    <string name="fab_pressed">Added </string>
+    <string name="fab_pressed">Added</string>
+
 
     <!--Full card-->
+    <string name="ageRestrictTrue">Yes</string>
+    <string name="ageRestrictFalse">None</string>
+    <string name="ageRestrictText">Age restriction: </string>
+    <string name="voteAverageText">Age restriction: </string>
+    <string name="descriptionText">Description:\n</string>
     <string name="full_card_already_watched_possitive_button">Move back to Wishlist</string>
     <string name="full_card_search_possitive_button">Add to wishlist</string>
     <string name="full_card_wishlist_possitive_button">I watched it</string>

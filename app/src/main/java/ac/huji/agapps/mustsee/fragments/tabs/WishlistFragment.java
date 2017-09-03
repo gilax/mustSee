@@ -91,6 +91,11 @@ public class WishlistFragment extends BaseMovieFragment {
         }
     }
 
+    public void remove(Result movie, int position)
+    {
+        ((WishlistMovieAdapter)movieAdapter).remove(movie, position);
+    }
+
     @Override
     protected BaseMovieAdapter.OnLoadMoreListener createOnLoadMoreListener() {
         return new BaseMovieAdapter.OnLoadMoreListener() {

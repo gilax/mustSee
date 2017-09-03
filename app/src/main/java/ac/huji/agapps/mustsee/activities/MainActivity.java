@@ -1,17 +1,28 @@
 package ac.huji.agapps.mustsee.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
@@ -36,10 +47,20 @@ public class MainActivity extends AppCompatActivity {
     public static final int WISHLIST_FRAGMENT_INDEX = 1;
     public static final int ALREADY_WATCHED_FRAGMENT_INDEX = 2;
 
+    public static final int HIGHLIGHT_ANIMATION_TRANSITION_SPEED = 600;
+    public static final int HIGHLIGHT_ANIMATION_DURATION= 900;
+
     private ViewPagerAdapter viewPagerAdapter;
     private ViewPager viewPager;
     private FirebaseUser user;
     private String sortPick;
+
+
+    private AnimatorSet animatorSet;
+    private ValueAnimator colorAnimation;
+    private ValueAnimator reColorAnimation;
+
+
 
     public YouTubePlayer youTubePlayer;
     public boolean trailerFullScreen;
@@ -50,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         dataBase.readGenres();
+        animatorSet = new AnimatorSet();
+
+
 
         //FirebaseUser, contains unique id, name, photo, etc about the user.
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -85,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
             signIn();
         }
         setupViewPager(viewPager);
+
 
         sortPick = PreferencesUtil.getSortBy(this);
     }
@@ -182,6 +207,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void tabColorAnimation(int index)
+    {
+
+
+        animatorSet.removeAllListeners();
+        animatorSet.end();
+        animatorSet.cancel();
+
+        animatorSet = new AnimatorSet();
+
+        final TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
+
+        final View tab = ((ViewGroup) tabLayout.getChildAt(0)).getChildAt(index);
+
+        int colorFrom = tab.getSolidColor();
+
+        final int colorTo = ContextCompat.getColor(this, R.color.highlight_addition);
+
+        colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorAnimation.setDuration(HIGHLIGHT_ANIMATION_TRANSITION_SPEED); // milliseconds
+
+
+        reColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorTo, colorFrom);
+        reColorAnimation.setDuration(HIGHLIGHT_ANIMATION_TRANSITION_SPEED); // milliseconds
+        reColorAnimation.setStartDelay(HIGHLIGHT_ANIMATION_DURATION);
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                tab.setBackgroundColor((int) animator.getAnimatedValue());
+            }
+        });
+
+        reColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                tab.setBackgroundColor((int) animator.getAnimatedValue());
+            }
+
+        });
+
+        animatorSet.play(colorAnimation).before(reColorAnimation);
+        animatorSet.start();
+    }
+
     private void setupViewPager(ViewPager viewPager) {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
@@ -194,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(alreadyWatchedFragment, getString(R.string.already_watched));
 
         viewPager.setAdapter(viewPagerAdapter);
+
+
     }
 
     public SearchFragment getSearchFragment() {

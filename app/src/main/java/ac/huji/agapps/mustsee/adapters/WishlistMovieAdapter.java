@@ -28,6 +28,16 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
     protected void onFloatingButtonClick(Result movie, MovieViewHolder movieViewHolder, int position) {
         MainActivity.dataBase.deleteMovieFromMustSeeListForUser(movie.getId().intValue());
         getMainActivity().getAlreadyWatchedFragment().addMovieToAlreadyWatchedList(movie);
+
+        ((MainActivity)fragment.getActivity()).tabColorAnimation(MainActivity.ALREADY_WATCHED_FRAGMENT_INDEX);
+        results.remove(movie);
+
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, getItemCount());
+    }
+
+    public void remove(Result movie, int position)
+    {
         results.remove(movie);
 
         notifyItemRemoved(position);

@@ -30,6 +30,16 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
         getMainActivity().getWishlistFragment().addMovieToMustSeeList(movie);
         results.remove(movie);
 
+        ((MainActivity)fragment.getActivity()).tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
+
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, getItemCount());
+    }
+
+    public void remove(Result movie, int position)
+    {
+        results.remove(movie);
+
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, getItemCount());
     }

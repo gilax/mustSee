@@ -57,10 +57,13 @@ public abstract class MovieFullCard extends DialogFragment {
     public final String lengthKey = "length";
     public final String genreKey = "genre";
     public final String directorKey = "director";
+    public final String NO_VALUE = "None";
+    public final String PARSE_STRING = " %s";
 
     public static final String TODO = "todo";
     private static final String TAG = "MovieFullCard";
     private boolean isExpanded = false;
+    protected int position;
 
     @Nullable
     @Override
@@ -74,6 +77,7 @@ public abstract class MovieFullCard extends DialogFragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         movie = bundle.getParcelable("movie");
+        position = bundle.getInt("position");
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -101,10 +105,22 @@ public abstract class MovieFullCard extends DialogFragment {
             task.execute(movie.getId().intValue());
         }
 
-        mTitle.setText(movie.getTitle());
-        mAge_restriction.setText(String.format("Age restriction: %s", (movie.getAdult()) ? "Yes" : "None"));
-        mRatings.setText(String.format("Vote average: %s", movie.getVoteAverage()));
-        mDescription.setText(String.format("Description:\n%s", movie.getOverview()));
+
+
+        mTitle.setText((movie.getTitle() != null) ? movie.getTitle() : NO_VALUE);
+        String age_restriction_text = String.format
+                (getString(R.string.ageRestrictText) + PARSE_STRING,
+                        (movie.getAdult()) ? getString(R.string.ageRestrictTrue) :
+                                getString(R.string.ageRestrictFalse));
+
+        mAge_restriction.setText((movie.getAdult() != null) ? age_restriction_text : NO_VALUE);
+
+        String vote_avg_text = String.format(getString(R.string.voteAverageText) + PARSE_STRING, movie.getVoteAverage());
+        mRatings.setText((movie.getVoteAverage() != null) ? vote_avg_text: NO_VALUE);
+
+
+        String descriptionText = String.format(getString(R.string.descriptionText) + PARSE_STRING, movie.getOverview());
+        mDescription.setText((movie.getOverview() != null) ? descriptionText: NO_VALUE);
 
         mDescription.setMovementMethod(new ScrollingMovementMethod());
         mDescription.setOnTouchListener(new View.OnTouchListener() {

@@ -10,6 +10,7 @@ import android.view.animation.Interpolator;
 import android.widget.Toast;
 
 import ac.huji.agapps.mustsee.R;
+import ac.huji.agapps.mustsee.activities.MainActivity;
 import ac.huji.agapps.mustsee.fragments.fullCard.MovieFullCard;
 import ac.huji.agapps.mustsee.fragments.fullCard.SearchMovieFullCard;
 import ac.huji.agapps.mustsee.fragments.tabs.BaseMovieFragment;
@@ -86,9 +87,9 @@ public class SearchMovieAdapter extends BaseMovieAdapter{
             }
         });
 
+        getMainActivity().tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
+
         button.startAnimation(shrink_animation);
 
-        String msg = fragment.getContext().getString(R.string.fab_pressed) + movieViewHolder.title.getText();
-        Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }

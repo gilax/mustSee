@@ -135,7 +135,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof MovieViewHolder) {
             final Result movie = getMovie(position);
             final MovieViewHolder movieHolder = (MovieViewHolder) holder;
@@ -157,6 +157,7 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
                     FragmentTransaction fragmentTransaction = fragment.getChildFragmentManager().beginTransaction();
                     Bundle args = new Bundle();
                     args.putParcelable("movie", movie);
+                    args.putInt("position", position);
                     MovieFullCard movieFullCard = getFullCard();
 
                     movieFullCard.setArguments(args);
@@ -167,6 +168,12 @@ public abstract class BaseMovieAdapter extends RecyclerView.Adapter implements S
 
             movieHolder.card.setOnClickListener(openFullCard);
             movieHolder.poster.setOnClickListener(openFullCard);
+
+            if(movie == null)
+            {
+                int x = 5;
+                x = 5+5;
+            }
 
             if (MainActivity.dataBase.genresMap.size() != 0 && movie.getGenreIds().size()!= 0) {
                 List<String> movieGenresList = new ArrayList<>();
