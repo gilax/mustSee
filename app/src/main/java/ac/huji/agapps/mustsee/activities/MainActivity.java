@@ -211,29 +211,24 @@ public class MainActivity extends AppCompatActivity {
 
     public void tabColorAnimation(int index)
     {
-
-
         animatorSet.removeAllListeners();
         animatorSet.end();
         animatorSet.cancel();
-
         animatorSet = new AnimatorSet();
 
         final TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
-
         final View tab = ((ViewGroup) tabLayout.getChildAt(0)).getChildAt(index);
 
         int colorFrom = tab.getSolidColor();
-
         final int colorTo = ContextCompat.getColor(this, R.color.highlight_addition);
 
         colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
         colorAnimation.setDuration(HIGHLIGHT_ANIMATION_TRANSITION_SPEED); // milliseconds
-
-
         reColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorTo, colorFrom);
+
         reColorAnimation.setDuration(HIGHLIGHT_ANIMATION_TRANSITION_SPEED); // milliseconds
         reColorAnimation.setStartDelay(HIGHLIGHT_ANIMATION_DURATION);
+
         colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
             @Override
