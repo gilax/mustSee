@@ -73,6 +73,7 @@ public class WishlistMovieAdapter extends BaseMovieAdapter {
         if (title.equals(getMainActivity().getString(R.string.wishlist_context_menu_watched))) {
             onFloatingButtonClick(results.get(position), null, position);
         } else if (title.equals(getMainActivity().getString(R.string.wishlist_context_menu_remove))) {
+            MainActivity.dataBase.deleteMovieFromMustSeeListForUser(results.get(position).getId().intValue());
             remove(results.get(position), position);
         }
     }

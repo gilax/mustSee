@@ -14,7 +14,7 @@ public class WishlistMovieFullCard extends DataBaseMovieFullCard {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ((MainActivity)getActivity()).getAlreadyWatchedFragment().addMovieToAlreadyWatchedList(movie);
-
+                MainActivity.dataBase.deleteMovieFromMustSeeListForUser(movie.getId().intValue());
                 ((MainActivity)getActivity()).getWishlistFragment().remove(movie, position);
                 ((MainActivity)getActivity()).tabColorAnimation(MainActivity.ALREADY_WATCHED_FRAGMENT_INDEX);
             }

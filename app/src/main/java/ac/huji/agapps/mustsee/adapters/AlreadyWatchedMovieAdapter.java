@@ -73,6 +73,8 @@ public class AlreadyWatchedMovieAdapter extends BaseMovieAdapter{
         if (title.equals(getMainActivity().getString(R.string.already_watched_context_menu_return))) {
             onFloatingButtonClick(results.get(position), null, position);
         } else if (title.equals(getMainActivity().getString(R.string.already_watched_context_menu_remove))) {
+            MainActivity.dataBase.deleteMovieFromAlreadyWatchedListForUser(
+                    results.get(position).getId().intValue());
             remove(results.get(position), position);
         }
     }

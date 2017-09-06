@@ -21,7 +21,7 @@ public class SearchMovieFullCard extends MovieFullCard {
         builder.setPositiveButton(R.string.full_card_search_possitive_button, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MainActivity.dataBase.writeMovieToMustSeeListForUser(movie);
+                ((MainActivity)getActivity()).getWishlistFragment().addMovieToMustSeeList(movie);
                 ((MainActivity)getActivity()).tabColorAnimation(MainActivity.WISHLIST_FRAGMENT_INDEX);
             }
         });
