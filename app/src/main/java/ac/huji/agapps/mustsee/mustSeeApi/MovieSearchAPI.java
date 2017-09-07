@@ -3,6 +3,8 @@ package ac.huji.agapps.mustsee.mustSeeApi;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.net.URLEncoder;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 
@@ -23,7 +25,7 @@ public class MovieSearchAPI extends TmdbApiRequest implements SearchRequest {
      * @param query
      */
     public MovieSearchAPI(String query) {
-        this.query = query;
+        this.query = URLEncoder.encode(query, "UTF-8");
     }
 
     /**
