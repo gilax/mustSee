@@ -1,12 +1,10 @@
 package ac.huji.agapps.mustsee.mustSeeApi;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
-
-import java.net.URLEncoder;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonNull;
+
+import java.net.URLEncoder;
 
 import ac.huji.agapps.mustsee.mustSeeApi.jsonClasses.MovieSearchResults;
 
@@ -16,16 +14,22 @@ public class MovieSearchAPI extends TmdbApiRequest implements SearchRequest {
     private static final String PAGE_NUMBER_PARAMETER = "&page=";
 
     private final String TAG = "TMDB Search API";
+    private String encodedQuery = "";
     private String query = "";
     private int nextPageNumber = 1;
     private int numberOfPages = 1;
 
     /**
      * Set the query of the search
-     * @param query
+     * @param query the search's query
      */
     public MovieSearchAPI(String query) {
-        this.query = URLEncoder.encode(query, "UTF-8");
+        try {
+            this.encodedQuery = URLEncoder.encode(query, "UTF-8");
+        } catch (Exception e) {
+            this.encodedQuery = query;
+        }
+        this.query = query;
     }
 
     /**
@@ -52,7 +56,7 @@ public class MovieSearchAPI extends TmdbApiRequest implements SearchRequest {
     @Override
     public MovieSearchResults search(int pageNumber) {
         this.url += SEARCH_BASE_URL + getApiKeyForURL();
-        this.url += QUERY_PARAMETER + query;
+        this.url += QUERY_PARAMETER + encodedQuery;
         this.url += PAGE_NUMBER_PARAMETER + pageNumber;
 
         String response = getResponseForHTTPGetRequest();
