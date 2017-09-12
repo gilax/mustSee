@@ -33,6 +33,8 @@ import ac.huji.agapps.mustsee.adapters.ViewPagerAdapter;
 import ac.huji.agapps.mustsee.fragments.tabs.AlreadyWatchedFragment;
 import ac.huji.agapps.mustsee.fragments.tabs.SearchFragment;
 import ac.huji.agapps.mustsee.fragments.tabs.WishlistFragment;
+import ac.huji.agapps.mustsee.mustSeeApi.SearchRequest;
+import ac.huji.agapps.mustsee.mustSeeApi.TopMoviesAPI;
 import ac.huji.agapps.mustsee.utils.MovieDataBase;
 import ac.huji.agapps.mustsee.utils.PreferencesUtil;
 
@@ -188,8 +190,11 @@ public class MainActivity extends AppCompatActivity {
                     public void onChooseSortBy(String chosenSortPick) {
                         if (sortPick != null && !sortPick.equals(chosenSortPick)) {
                             ViewPagerAdapter adapter = (ViewPagerAdapter) viewPager.getAdapter();
-                            getSearchFragment().performFirstSearch(true);
-                            adapter.notifyDataSetChanged();
+                            SearchRequest request = getSearchFragment().getSearchRequest();
+                            if (request instanceof TopMoviesAPI) {
+                                getSearchFragment().performFirstSearch(true);
+                                adapter.notifyDataSetChanged();
+                            }
 
                             sortPick = chosenSortPick;
                         }

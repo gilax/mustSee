@@ -15,7 +15,7 @@
 
     <!--menu items-->
     <string name="log_out">Log Out</string>
-    <string name="action_sort_movies_by">Sort Movies By</string>
+    <string name="action_sort_movies_by">Sort Top Movies By</string>
 
     <!--login messages-->
     <string name="register_wait">Registering Please Wait…</string>
@@ -65,4 +65,5 @@
     <string name="wishlist_context_menu_watched">I Watched it</string>
     <string name="wishlist_context_menu_remove">Remove from must see</string>
     <string name="search_context_menu_add">Add to must see</string>
+    <string name="search_top_movies">Search Top Movies</string>
 </resources>

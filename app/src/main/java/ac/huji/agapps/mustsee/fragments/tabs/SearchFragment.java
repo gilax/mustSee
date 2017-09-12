@@ -8,6 +8,9 @@ import android.support.v7.widget.AppCompatImageButton;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -42,6 +45,12 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
 
     public SearchFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -164,8 +173,7 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
         return performFirstSearch(false);
     }
 
-    public boolean performFirstSearch(boolean isInitNewTopMovies)
-    {
+    public boolean performFirstSearch(boolean isInitNewTopMovies) {
         if (isInitNewTopMovies)
             searchRequest = new TopMoviesAPI(getContext());
 
@@ -215,15 +223,11 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
                 setErrorMessageToContainer(R.string.search_error_message_no_results);
             }
 
-            if (searchResults == null) {
-                searchMovieAdapter.setLoaded();
-                searchMovieAdapter.notifyDataSetChanged();
-                return;
+            if (searchResults != null) {
+                searchMovieAdapter.addSearchResults(searchResults);
+
+                Log.d(TAG, "Results added. results page = " + searchResults.getPage().intValue());
             }
-
-            searchMovieAdapter.addSearchResults(searchResults);
-
-            Log.d(TAG, "Results added. results page = " + searchResults.getPage().intValue());
 
             searchMovieAdapter.setLoaded();
             searchMovieAdapter.notifyDataSetChanged();
@@ -236,8 +240,29 @@ public class SearchFragment extends BaseMovieFragment implements Serializable {
         if (fragment != null) {
             TextView errorContainer = (TextView) fragment.findViewById(R.id.error_message_container);
             errorContainer.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
             errorContainer.setText(errorMessageResource);
+        }
+    }
+
+    public SearchRequest getSearchRequest() {
+        return searchRequest;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_top_movies:
+                onQueryTextSubmit("");
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
